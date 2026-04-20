@@ -334,7 +334,7 @@ export default function Home() {
       {/* Lab — simplified grid (no pinned scroll) */}
       <section id="lab-test" className="section" style={{ background: 'var(--dark2)', position: 'relative', overflow: 'hidden' }}>
         <div className="lab-video-bg" style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
-          <img src="/lab.jpg" alt="Lab" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.1 }} />
+          <img src="/lab.jpg" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center center', opacity: 0.1 }} />
         </div>
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           <h2 className="section-title anim-reveal" style={{ textAlign: 'center' }}>{t.lab.title}</h2>
