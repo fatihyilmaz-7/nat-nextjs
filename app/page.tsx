@@ -92,7 +92,7 @@ export default function Home() {
     }
 
     // Scroll reveal via IntersectionObserver
-    const revealEls = document.querySelectorAll<HTMLElement>('.anim-reveal, .problem-card, .device-float, .prediction-card, .op-card, .sec-card, .lab-card, .cta-button');
+    const revealEls = document.querySelectorAll<HTMLElement>('.anim-reveal, .problem-card, .device-float, .prediction-card, .op-card, .sec-card, .infographic-step, .cta-button');
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('revealed'); observer.unobserve(e.target); } });
     }, { threshold: 0.1 });

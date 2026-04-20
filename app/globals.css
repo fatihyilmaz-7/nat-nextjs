@@ -1339,8 +1339,6 @@ body.cursor-hover .cursor-ring {
     display: flex;
     align-items: center;
     margin-bottom: 3rem;
-    opacity: 0;
-    transform: translateY(30px);
 }
 .infographic-step:last-child { margin-bottom: 0; }
 
@@ -3407,13 +3405,11 @@ body.has-lang-banner .contact-hero {
 .prediction-card,
 .op-card,
 .sec-card,
-.lab-card,
+.infographic-step,
 .cta-button {
-    transition: opacity 0.65s ease, transform 0.65s ease;
-}
-.lab-card {
     opacity: 0;
     transform: translateY(30px);
+    transition: opacity 0.65s ease, transform 0.65s ease;
 }
 .anim-reveal.revealed,
 .problem-card.revealed,
@@ -3421,7 +3417,7 @@ body.has-lang-banner .contact-hero {
 .prediction-card.revealed,
 .op-card.revealed,
 .sec-card.revealed,
-.lab-card.revealed,
+.infographic-step.revealed,
 .cta-button.revealed {
     opacity: 1 !important;
     transform: translateY(0) !important;
