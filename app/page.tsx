@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { getTranslation, type Lang } from '../lib/translations';
+import { getTranslation, type Lang } from '../lib/translations/index';
 import LanguageBanner from '../components/LanguageBanner';
 
 export default function Home() {
@@ -16,39 +16,32 @@ export default function Home() {
   const t = getTranslation(lang);
 
   useEffect(() => {
-    // Preloader fade + hero CSS animation
     const showHero = () => {
-      const pre = document.getElementById('preloader');
-      if (!pre) { document.body.classList.add('hero-animate'); return; }
-      setTimeout(() => { pre.style.transition = 'opacity 0.6s ease'; pre.style.opacity = '0'; }, 500);
+      document.body.classList.add('hero-animate');
+      // Auto expand/collapse NAT
       setTimeout(() => {
-        pre.style.display = 'none';
-        document.body.classList.add('hero-animate');
-        // Auto expand/collapse NAT
+        const el = document.getElementById('heroNatTrigger');
+        const br = document.getElementById('natBreak');
+        if (!el) return;
+        el.style.opacity = '0';
         setTimeout(() => {
-          const el = document.getElementById('heroNatTrigger');
-          const br = document.getElementById('natBreak');
-          if (!el) return;
-          el.style.opacity = '0';
+          el.textContent = 'Natural Agriculture Technologies';
+          el.classList.add('nat-is-expanded');
+          if (br) br.style.display = '';
+          el.style.opacity = '1';
           setTimeout(() => {
-            el.textContent = 'Natural Agriculture Technologies';
-            el.classList.add('nat-is-expanded');
-            if (br) br.style.display = '';
-            el.style.opacity = '1';
+            el.style.opacity = '0';
             setTimeout(() => {
-              el.style.opacity = '0';
-              setTimeout(() => {
-                el.textContent = 'NAT';
-                el.classList.remove('nat-is-expanded');
-                if (br) br.style.display = 'none';
-                el.style.opacity = '1';
-              }, 200);
-            }, 2000);
-          }, 200);
-        }, 1200);
-      }, 1100);
+              el.textContent = 'NAT';
+              el.classList.remove('nat-is-expanded');
+              if (br) br.style.display = 'none';
+              el.style.opacity = '1';
+            }, 200);
+          }, 2000);
+        }, 200);
+      }, 1200);
     };
-    if (document.readyState === 'complete') showHero();
+    document.body.classList.add('hero-animate'); if (document.readyState === 'complete') showHero();
     else window.addEventListener('load', showHero, { once: true });
 
     // NAT hover
@@ -99,7 +92,7 @@ export default function Home() {
     }
 
     // Scroll reveal via IntersectionObserver
-    const revealEls = document.querySelectorAll<HTMLElement>('.anim-reveal, .problem-card, .device-float, .prediction-card, .op-card, .sec-card, .lab-card');
+    const revealEls = document.querySelectorAll<HTMLElement>('.anim-reveal, .problem-card, .device-float, .prediction-card, .op-card, .sec-card, .lab-card, .cta-button');
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('revealed'); observer.unobserve(e.target); } });
     }, { threshold: 0.1 });
@@ -124,12 +117,7 @@ export default function Home() {
     <>
       <LanguageBanner currentLang={lang} onChangeLang={setLang} />
 
-      <div id="preloader">
-        <div className="preloader-inner">
-          <div className="preloader-ring"></div><div className="preloader-ring"></div><div className="preloader-ring"></div>
-          <span className="preloader-logo"><span className="pl-n">N</span><span className="pl-a">a</span><span className="pl-t">T</span></span>
-        </div>
-      </div>
+
 
       {/* Navbar */}
       <nav id="navbar" className="navbar" role="navigation" aria-label={t.nav.mainNav}>

@@ -3217,7 +3217,8 @@ body.has-lang-banner .contact-hero {
 .prediction-card,
 .op-card,
 .sec-card,
-.lab-card {
+.lab-card,
+.cta-button {
     transition: opacity 0.65s ease, transform 0.65s ease;
 }
 .lab-card {
@@ -3230,7 +3231,8 @@ body.has-lang-banner .contact-hero {
 .prediction-card.revealed,
 .op-card.revealed,
 .sec-card.revealed,
-.lab-card.revealed {
+.lab-card.revealed,
+.cta-button.revealed {
     opacity: 1 !important;
     transform: translateY(0) !important;
 }

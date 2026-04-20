@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { getTranslation, type Lang } from '../../lib/translations';
+import { getTranslation, type Lang } from '../../lib/translations/index';
 import LanguageBanner from '../../components/LanguageBanner';
 
 export default function IletisimPage() {
@@ -39,20 +39,11 @@ export default function IletisimPage() {
       if (!gsap || !ScrollTrigger) return;
       gsap.registerPlugin(ScrollTrigger);
 
-      // Preloader
-      window.addEventListener('load', () => {
-        const preloader = document.getElementById('preloader');
-        if (preloader) {
-          gsap.to(preloader, {
-            opacity: 0, duration: 0.8, delay: 0.6, ease: 'power2.out',
-            onComplete: () => { preloader.style.display = 'none'; },
-          });
-        }
-        const highlightText = document.querySelector('.contact-info-title .highlight-text');
-        if (highlightText) {
-          setTimeout(() => highlightText.classList.add('active'), 1200);
-        }
-      });
+      // Highlight text
+      const highlightText = document.querySelector('.contact-info-title .highlight-text');
+      if (highlightText) {
+        setTimeout(() => highlightText.classList.add('active'), 1200);
+      }
 
       gsap.to('#heroSub', { opacity: 1, y: 0, duration: 0.8, delay: 0.9, ease: 'power3.out' });
       gsap.to('#heroTitle', { opacity: 1, y: 0, duration: 1, delay: 1.1, ease: 'power3.out' });
@@ -214,17 +205,6 @@ export default function IletisimPage() {
   return (
     <>
       <LanguageBanner currentLang={lang} onChangeLang={setLang} />
-
-      <div id="preloader">
-        <div className="preloader-inner">
-          <div className="preloader-ring"></div>
-          <div className="preloader-ring"></div>
-          <div className="preloader-ring"></div>
-          <span className="preloader-logo">
-            <span className="pl-n">N</span><span className="pl-a">a</span><span className="pl-t">T</span>
-          </span>
-        </div>
-      </div>
 
       {/* Navbar */}
       <nav id="navbar" className="navbar" role="navigation" aria-label={t.nav.mainNav}>
