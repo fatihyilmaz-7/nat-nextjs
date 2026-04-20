@@ -2931,24 +2931,23 @@ body.cursor-hover .cursor-ring {
     right: 0.75rem;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: var(--cream2);
-    font-size: 0.85rem;
+    background: none;
+    border: none;
+    color: #e05555;
+    font-size: 1rem;
     cursor: pointer;
-    padding: 0.35rem 0.55rem;
-    border-radius: 8px;
+    padding: 0.3rem;
+    border-radius: 50%;
     transition: all 0.25s;
-    opacity: 0.7;
+    opacity: 0.8;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 .lang-banner-close:hover {
     opacity: 1;
-    color: #ff6b6b;
-    background: rgba(255, 107, 107, 0.1);
-    border-color: rgba(255, 107, 107, 0.25);
+    color: #ff4444;
+    transform: translateY(-50%) scale(1.15);
 }
 
 .lang-banner-content {

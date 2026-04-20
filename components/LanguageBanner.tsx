@@ -148,7 +148,7 @@ export default function LanguageBanner({ currentLang, onChangeLang }: LanguageBa
             onClick={(e) => { e.stopPropagation(); handleCloseBanner(); }}
             aria-label="Close language banner"
           >
-            <i className="fa-solid fa-xmark"></i>
+            <i className="fa-solid fa-circle-xmark"></i>
           </button>
         </div>
       </div>
