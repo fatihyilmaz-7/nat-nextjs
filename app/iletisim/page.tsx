@@ -1,11 +1,23 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { getTranslation, type Lang } from '../../lib/translations';
+import LanguageBanner from '../../components/LanguageBanner';
 
 export default function IletisimPage() {
   const orgFieldsRef = useRef<HTMLDivElement>(null);
   const orgToggleRef = useRef<HTMLLabelElement>(null);
+
+  const [lang, setLang] = useState<Lang>('tr');
+
+  useEffect(() => {
+    const saved = localStorage.getItem('nat-lang') as Lang | null;
+    if (saved) setLang(saved);
+  }, []);
+
+  const t = getTranslation(lang);
+  const tc = t.contact;
 
   useEffect(() => {
     const loadAnimations = () => {
@@ -168,7 +180,7 @@ export default function IletisimPage() {
 
     if (submitBtn) {
       submitBtn.disabled = true;
-      submitBtn.innerHTML = `<span class="btn-blob"></span><span>Gönderiliyor…</span><i class="fa-solid fa-circle-notch fa-spin"></i>`;
+      submitBtn.innerHTML = `<span class="btn-blob"></span><span>${tc.submitting}</span><i class="fa-solid fa-circle-notch fa-spin"></i>`;
     }
     successMsg?.classList.remove('visible');
     errorMsg?.classList.remove('visible');
@@ -194,13 +206,15 @@ export default function IletisimPage() {
     } finally {
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = `<span class="btn-blob"></span><span>Gönder</span><i class="fa-solid fa-paper-plane"></i>`;
+        submitBtn.innerHTML = `<span class="btn-blob"></span><span>${tc.submitBtn}</span><i class="fa-solid fa-paper-plane"></i>`;
       }
     }
   };
 
   return (
     <>
+      <LanguageBanner currentLang={lang} onChangeLang={setLang} />
+
       <div id="preloader">
         <div className="preloader-inner">
           <div className="preloader-ring"></div>
@@ -213,23 +227,23 @@ export default function IletisimPage() {
       </div>
 
       {/* Navbar */}
-      <nav id="navbar" className="navbar" role="navigation" aria-label="Ana navigasyon">
+      <nav id="navbar" className="navbar" role="navigation" aria-label={t.nav.mainNav}>
         <div className="nav-container">
-          <Link href="/" className="nav-logo" title="NaT Anasayfa">
+          <Link href="/" className="nav-logo" title="NaT">
             <span className="logo-word"><span className="logo-n">N</span></span>
             <span className="logo-word"><span className="logo-a">a</span></span>
             <span className="logo-word"><span className="logo-t">T</span></span>
           </Link>
           <div className="nav-links" id="navLinks">
-            <Link href="/#hero" className="nav-link" data-text="Anasayfa">Anasayfa</Link>
-            <Link href="/#problem" className="nav-link" data-text="Problem">Problem</Link>
-            <Link href="/#hardware" className="nav-link" data-text="Donanım">Donanım</Link>
-            <Link href="/#rag" className="nav-link" data-text="Zeka">Zeka</Link>
-            <Link href="/#operation" className="nav-link" data-text="Operasyon">Operasyon</Link>
-            <Link href="/#security" className="nav-link" data-text="Güvenlik">Güvenlik</Link>
-            <Link href="/iletisim" className="nav-link active" data-text="İletişim">İletişim</Link>
+            <Link href="/#hero" className="nav-link" data-text={t.nav.home}>{t.nav.home}</Link>
+            <Link href="/#problem" className="nav-link" data-text={t.nav.problem}>{t.nav.problem}</Link>
+            <Link href="/#hardware" className="nav-link" data-text={t.nav.hardware}>{t.nav.hardware}</Link>
+            <Link href="/#rag" className="nav-link" data-text={t.nav.intelligence}>{t.nav.intelligence}</Link>
+            <Link href="/#operation" className="nav-link" data-text={t.nav.operation}>{t.nav.operation}</Link>
+            <Link href="/#security" className="nav-link" data-text={t.nav.security}>{t.nav.security}</Link>
+            <Link href="/iletisim" className="nav-link active" data-text={tc.infoTag}>{tc.infoTag}</Link>
           </div>
-          <button className="nav-toggle" id="navToggle" aria-label="Mobil menüyü aç/kapat" type="button">
+          <button className="nav-toggle" id="navToggle" aria-label={t.nav.mobileToggle} type="button">
             <span className="hamburger-line" aria-hidden="true"></span>
             <span className="hamburger-line" aria-hidden="true"></span>
             <span className="hamburger-line" aria-hidden="true"></span>
@@ -238,16 +252,16 @@ export default function IletisimPage() {
       </nav>
 
       {/* Mobile Menu */}
-      <div className="mobile-menu" id="mobileMenu" role="navigation" aria-label="Mobil navigasyon">
+      <div className="mobile-menu" id="mobileMenu" role="navigation" aria-label={t.nav.mobileNav}>
         <div className="mobile-menu-bg"></div>
         <div className="mobile-menu-content">
-          <Link href="/#hero" className="mobile-link">Anasayfa</Link>
-          <Link href="/#problem" className="mobile-link">Problem</Link>
-          <Link href="/#hardware" className="mobile-link">Donanım</Link>
-          <Link href="/#rag" className="mobile-link">Zeka</Link>
-          <Link href="/#operation" className="mobile-link">Operasyon</Link>
-          <Link href="/#security" className="mobile-link">Güvenlik</Link>
-          <Link href="/iletisim" className="mobile-link mobile-link-cta">İletişim</Link>
+          <Link href="/#hero" className="mobile-link">{t.nav.home}</Link>
+          <Link href="/#problem" className="mobile-link">{t.nav.problem}</Link>
+          <Link href="/#hardware" className="mobile-link">{t.nav.hardware}</Link>
+          <Link href="/#rag" className="mobile-link">{t.nav.intelligence}</Link>
+          <Link href="/#operation" className="mobile-link">{t.nav.operation}</Link>
+          <Link href="/#security" className="mobile-link">{t.nav.security}</Link>
+          <Link href="/iletisim" className="mobile-link mobile-link-cta">{tc.infoTag}</Link>
         </div>
       </div>
 
@@ -255,41 +269,38 @@ export default function IletisimPage() {
       <div className="contact-hero" id="contactHero">
         <img
           src="/assets/sensTree-background-animation-photo.png"
-          alt="NaT Tarım Teknolojisi"
+          alt="NaT"
           className="contact-hero-img"
           id="heroImg"
         />
         <div className="contact-hero-overlay"></div>
         <div className="contact-hero-text">
-          <span className="contact-hero-sub" id="heroSub">NaT — Natural Agriculture Technologies</span>
-          <h1 className="contact-hero-title" id="heroTitle">Bize bir mesaj gönder!</h1>
+          <span className="contact-hero-sub" id="heroSub">{tc.heroSub}</span>
+          <h1 className="contact-hero-title" id="heroTitle">{tc.heroTitle}</h1>
         </div>
       </div>
 
       {/* Contact Form Section */}
       <section className="contact-section section">
+        <div className="contact-watermark">{tc.watermark}</div>
         <div className="form-particles" id="formParticles"></div>
         <div className="container">
           <div className="contact-grid">
             {/* Left Info Panel */}
             <div className="contact-info" id="contactInfo">
               <span className="contact-info-tag">
-                <i className="fa-solid fa-paper-plane"></i> İletişim
+                <i className="fa-solid fa-paper-plane"></i> {tc.infoTag}
               </span>
-              <h1 className="contact-info-title">
-                Dünyayı<br />birlikte<br /><span className="highlight-text"><b>kurtaralım</b>!</span>
-              </h1>
-              <p className="contact-info-desc">
-                Yatırım, iş birliği, kariyer veya ürünlerimiz hakkında her türlü sorunuz için buradayız. En kısa sürede geri döneceğiz.
-              </p>
+              <h1 className="contact-info-title" dangerouslySetInnerHTML={{ __html: tc.infoTitleHtml }} />
+              <p className="contact-info-desc">{tc.infoDesc}</p>
               <div className="contact-channels">
                 <div className="contact-channel">
                   <div className="contact-channel-icon"><i className="fa-solid fa-envelope"></i></div>
                   <div className="contact-channel-info">
-                    <span className="contact-channel-label">E-posta</span>
+                    <span className="contact-channel-label">{tc.emailLabel}</span>
                     <span className="contact-channel-value">fatih@nat-project.com</span>
                     <span style={{ fontSize: '0.7rem', color: 'var(--cream2)', opacity: 0.55, marginTop: '0.1rem', fontFamily: 'var(--font-body)' }}>
-                      Co-Founder &amp; Owner
+                      {tc.coFounder}
                     </span>
                   </div>
                 </div>
@@ -303,8 +314,8 @@ export default function IletisimPage() {
                 <div className="contact-channel">
                   <div className="contact-channel-icon"><i className="fa-solid fa-location-dot"></i></div>
                   <div className="contact-channel-info">
-                    <span className="contact-channel-label">Konum</span>
-                    <span className="contact-channel-value">Türkiye</span>
+                    <span className="contact-channel-label">{tc.locationLabel}</span>
+                    <span className="contact-channel-value">{tc.location}</span>
                   </div>
                 </div>
               </div>
@@ -313,19 +324,19 @@ export default function IletisimPage() {
             {/* Right Form Card */}
             <div className="contact-form-card" id="formCard">
               <div className="form-title">
-                <i className="fa-solid fa-pen-to-square"></i> Mesajınızı Gönderin
+                <i className="fa-solid fa-pen-to-square"></i> {tc.formTitle}
               </div>
               <form id="contactForm" noValidate onSubmit={handleSubmit}>
                 <div className="form-row">
                   <div className="form-field" id="field-name">
-                    <input type="text" id="name" name="name" placeholder="Ad Soyad" autoComplete="name" required />
-                    <label htmlFor="name">Ad Soyad</label>
-                    <span className="field-error">Bu alan zorunludur.</span>
+                    <input type="text" id="name" name="name" placeholder={tc.nameField} autoComplete="name" required />
+                    <label htmlFor="name">{tc.nameField}</label>
+                    <span className="field-error">{tc.nameError}</span>
                   </div>
                   <div className="form-field" id="field-email">
-                    <input type="email" id="email" name="email" placeholder="E-posta" autoComplete="email" required />
-                    <label htmlFor="email">E-posta Adresi</label>
-                    <span className="field-error">Geçerli bir e-posta girin.</span>
+                    <input type="email" id="email" name="email" placeholder={tc.emailField} autoComplete="email" required />
+                    <label htmlFor="email">{tc.emailField}</label>
+                    <span className="field-error">{tc.emailError}</span>
                   </div>
                 </div>
                 <br />
@@ -336,43 +347,43 @@ export default function IletisimPage() {
                     <span className="org-checkbox-box"><i className="fa-solid fa-check"></i></span>
                   </span>
                   <span className="org-toggle-text">
-                    <strong>Bir şirket veya organizasyon adına yazıyorum</strong>
-                    Kurumsal mesajlar için ek bilgileri paylaşın.
+                    <strong>{tc.orgToggleTitle}</strong>
+                    {tc.orgToggleDesc}
                   </span>
                 </label>
 
                 <div className="org-fields" id="orgFields" ref={orgFieldsRef}>
                   <div className="form-field">
-                    <input type="text" id="orgName" name="orgName" placeholder="Şirket / Organizasyon Adı" autoComplete="organization" />
-                    <label htmlFor="orgName">Şirket / Organizasyon Adı</label>
+                    <input type="text" id="orgName" name="orgName" placeholder={tc.orgNameField} autoComplete="organization" />
+                    <label htmlFor="orgName">{tc.orgNameField}</label>
                   </div>
                   <div className="form-field">
-                    <input type="text" id="orgRole" name="orgRole" placeholder="Ünvan / Pozisyon" autoComplete="organization-title" />
-                    <label htmlFor="orgRole">Ünvan / Pozisyon</label>
+                    <input type="text" id="orgRole" name="orgRole" placeholder={tc.orgRoleField} autoComplete="organization-title" />
+                    <label htmlFor="orgRole">{tc.orgRoleField}</label>
                   </div>
                 </div>
 
                 <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                  <label className="select-label">Konu</label>
+                  <label className="select-label">{tc.subjectLabel}</label>
                   <div className="form-field select-wrapper" id="field-subject">
                     <select id="subject" name="subject" required>
                       <option value="" disabled hidden></option>
-                      <option value="yatirim">Yatırım &amp; Finansman</option>
-                      <option value="partner">Stratejik Ortaklık</option>
-                      <option value="urun">Ürün &amp; Teknoloji</option>
-                      <option value="kariyer">Kariyer &amp; Ekip</option>
-                      <option value="medya">Medya &amp; Basın</option>
-                      <option value="diger">Diğer</option>
+                      <option value="yatirim">{tc.subjectInvest}</option>
+                      <option value="partner">{tc.subjectPartner}</option>
+                      <option value="urun">{tc.subjectProduct}</option>
+                      <option value="kariyer">{tc.subjectCareer}</option>
+                      <option value="medya">{tc.subjectMedia}</option>
+                      <option value="diger">{tc.subjectOther}</option>
                     </select>
-                    <span className="field-error">Lütfen bir konu seçin.</span>
+                    <span className="field-error">{tc.subjectError}</span>
                   </div>
                 </div>
 
                 <div className="form-group" style={{ marginBottom: '1.5rem', position: 'relative' }}>
                   <div className="form-field" id="field-message">
-                    <textarea id="message" name="message" placeholder="Mesajınız" maxLength={1000} required onChange={handleTextareaInput}></textarea>
-                    <label htmlFor="message">Mesajınız</label>
-                    <span className="field-error">Mesaj alanı zorunludur.</span>
+                    <textarea id="message" name="message" placeholder={tc.messageField} maxLength={1000} required onChange={handleTextareaInput}></textarea>
+                    <label htmlFor="message">{tc.messageField}</label>
+                    <span className="field-error">{tc.messageError}</span>
                   </div>
                   <span className="char-counter" id="charCounter">0 / 1000</span>
                 </div>
@@ -380,21 +391,21 @@ export default function IletisimPage() {
                 <div className="form-submit-wrapper">
                   <button type="submit" className="form-submit-btn" id="submitBtn">
                     <span className="btn-blob"></span>
-                    <span>Gönder</span>
+                    <span>{tc.submitBtn}</span>
                     <i className="fa-solid fa-paper-plane"></i>
                   </button>
                   <span className="form-privacy-note">
-                    <i className="fa-solid fa-lock"></i> Bilgileriniz güvende, üçüncü taraflarla paylaşılmaz.
+                    <i className="fa-solid fa-lock"></i> {tc.privacyNote}
                   </span>
                 </div>
 
                 <div className="form-status success" id="formSuccess">
                   <i className="fa-solid fa-circle-check"></i>
-                  Mesajınız başarıyla gönderildi! En kısa sürede size döneceğiz.
+                  {tc.successMsg}
                 </div>
                 <div className="form-status error" id="formError">
                   <i className="fa-solid fa-triangle-exclamation"></i>
-                  Bir hata oluştu. Lütfen daha sonra tekrar deneyin.
+                  {tc.errorMsg}
                 </div>
               </form>
             </div>
@@ -415,26 +426,26 @@ export default function IletisimPage() {
               <p>Natural Agriculture Technologies</p>
             </div>
             <div className="footer-col col-lg-2">
-              <h5>Ekosistem</h5>
+              <h5>{t.footer.ecosystem}</h5>
               <Link href="/#hardware"><i className="fa-solid fa-microchip"></i> sensSeries</Link>
-              <Link href="/#rag"><i className="fa-solid fa-brain"></i> RAG Zeka</Link>
-              <Link href="/#operation"><i className="fa-solid fa-robot"></i> Otonom Araçlar</Link>
+              <Link href="/#rag"><i className="fa-solid fa-brain"></i> RAG</Link>
+              <Link href="/#operation"><i className="fa-solid fa-robot"></i> {t.operation.tag}</Link>
             </div>
             <div className="footer-col col-lg-2">
-              <h5>Şirket</h5>
-              <Link href="/">Anasayfa</Link>
-              <Link href="/#vision">Kariyer</Link>
-              <Link href="/iletisim">İletişim</Link>
+              <h5>{t.footer.company}</h5>
+              <Link href="/">{t.footer.home}</Link>
+              <Link href="/#vision">{t.footer.career}</Link>
+              <Link href="/iletisim">{t.footer.contact}</Link>
             </div>
             <div className="footer-col col-lg-2">
-              <h5>Yasal</h5>
-              <a href="#">Gizlilik Politikası</a>
-              <a href="#">KVKK</a>
-              <a href="#">Kullanım Şartları</a>
+              <h5>{t.footer.legal}</h5>
+              <a href="#">{t.footer.privacy}</a>
+              <a href="#">{t.footer.kvkk}</a>
+              <a href="#">{t.footer.terms}</a>
             </div>
           </div>
           <div className="footer-bottom">
-            <p>&copy; 2026 NaT — Natural Agriculture Technologies. Tüm hakları saklıdır.</p>
+            <p>{t.footer.copyright}</p>
           </div>
         </div>
       </footer>
@@ -494,21 +505,6 @@ export default function IletisimPage() {
           padding: 6rem 0 8rem;
           position: relative;
           overflow: hidden;
-        }
-        .contact-section::before {
-          content: 'İLETİŞİM';
-          font-family: var(--font-w2);
-          font-size: clamp(5rem, 14vw, 12rem);
-          color: transparent;
-          -webkit-text-stroke: 1px rgba(0,255,136,0.06);
-          position: absolute;
-          top: 4rem;
-          left: 50%;
-          transform: translateX(-50%);
-          white-space: nowrap;
-          pointer-events: none;
-          user-select: none;
-          z-index: 0;
         }
         .contact-grid {
           display: grid;

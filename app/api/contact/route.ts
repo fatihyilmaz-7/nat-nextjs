@@ -167,7 +167,8 @@ export async function POST(request: NextRequest) {
 
   // Geolocation from Vercel's automatic headers (no external API)
   const country = request.headers.get('x-vercel-ip-country') ?? '';
-  const city = decodeURIComponent(request.headers.get('x-vercel-ip-city') ?? '');
+  const cityRaw = request.headers.get('x-vercel-ip-city') ?? '';
+  const city = (() => { try { return decodeURIComponent(cityRaw); } catch { return cityRaw; } })();
   const region = request.headers.get('x-vercel-ip-country-region') ?? '';
   const latitude = request.headers.get('x-vercel-ip-latitude') ?? '';
   const longitude = request.headers.get('x-vercel-ip-longitude') ?? '';

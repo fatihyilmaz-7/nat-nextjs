@@ -2,39 +2,18 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { translations, type Lang } from '../lib/translations';
+import { getTranslation, type Lang } from '../lib/translations';
+import LanguageBanner from '../components/LanguageBanner';
 
 export default function Home() {
   const [lang, setLang] = useState<Lang>('tr');
 
   useEffect(() => {
-    // Check saved preference first
     const saved = localStorage.getItem('nat-lang') as Lang | null;
-    if (saved === 'tr' || saved === 'en') {
-      setLang(saved);
-      return;
-    }
-    // Auto-detect via Vercel geo headers (server-side country detection)
-    fetch('/api/geo')
-      .then((r) => r.json())
-      .then((data: { country: string | null }) => {
-        if (data.country && data.country !== 'TR') {
-          setLang('en');
-        }
-      })
-      .catch(() => {
-        // Fallback: use browser language
-        if (!navigator.language.startsWith('tr')) setLang('en');
-      });
+    if (saved) setLang(saved);
   }, []);
 
-  const toggleLang = () => {
-    const next: Lang = lang === 'tr' ? 'en' : 'tr';
-    setLang(next);
-    localStorage.setItem('nat-lang', next);
-  };
-
-  const t = translations[lang];
+  const t = getTranslation(lang);
 
   useEffect(() => {
     const loadAnimations = () => {
@@ -601,6 +580,8 @@ export default function Home() {
 
   return (
     <>
+      <LanguageBanner currentLang={lang} onChangeLang={setLang} />
+
       <div id="preloader">
         <div className="preloader-inner">
           <div className="preloader-ring"></div>
@@ -629,25 +610,6 @@ export default function Home() {
             <a href="#security" className="nav-link" data-text={t.nav.security}>{t.nav.security}</a>
             <a href="#vision" className="nav-link nav-link-cta" data-text={t.nav.join}>{t.nav.join}</a>
           </div>
-          <button
-            onClick={toggleLang}
-            aria-label="Switch language"
-            style={{
-              background: 'transparent',
-              border: '1px solid rgba(0,255,136,0.35)',
-              color: '#00FF88',
-              borderRadius: '6px',
-              padding: '4px 10px',
-              fontSize: '12px',
-              fontWeight: 700,
-              letterSpacing: '.08em',
-              cursor: 'pointer',
-              marginRight: '12px',
-              transition: 'all .2s',
-            }}
-          >
-            {t.langToggle}
-          </button>
           <button className="nav-toggle" id="navToggle" aria-label={t.nav.mobileToggle} type="button">
             <span className="hamburger-line" aria-hidden="true"></span>
             <span className="hamburger-line" aria-hidden="true"></span>
