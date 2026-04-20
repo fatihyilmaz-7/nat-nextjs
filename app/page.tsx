@@ -1,9 +1,41 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { translations, type Lang } from '../lib/translations';
 
 export default function Home() {
+  const [lang, setLang] = useState<Lang>('tr');
+
+  useEffect(() => {
+    // Check saved preference first
+    const saved = localStorage.getItem('nat-lang') as Lang | null;
+    if (saved === 'tr' || saved === 'en') {
+      setLang(saved);
+      return;
+    }
+    // Auto-detect via Vercel geo headers (server-side country detection)
+    fetch('/api/geo')
+      .then((r) => r.json())
+      .then((data: { country: string | null }) => {
+        if (data.country && data.country !== 'TR') {
+          setLang('en');
+        }
+      })
+      .catch(() => {
+        // Fallback: use browser language
+        if (!navigator.language.startsWith('tr')) setLang('en');
+      });
+  }, []);
+
+  const toggleLang = () => {
+    const next: Lang = lang === 'tr' ? 'en' : 'tr';
+    setLang(next);
+    localStorage.setItem('nat-lang', next);
+  };
+
+  const t = translations[lang];
+
   useEffect(() => {
     const loadAnimations = () => {
       const win = window as typeof window & { gsap?: unknown; ScrollTrigger?: unknown };
@@ -581,23 +613,42 @@ export default function Home() {
       </div>
 
       {/* Navbar */}
-      <nav id="navbar" className="navbar" role="navigation" aria-label="Ana navigasyon">
+      <nav id="navbar" className="navbar" role="navigation" aria-label={t.nav.mainNav}>
         <div className="nav-container">
-          <a href="#hero" className="nav-logo" title="NaT Anasayfa">
+          <a href="#hero" className="nav-logo" title="NaT">
             <span className="logo-word"><span className="logo-n">N</span></span>
             <span className="logo-word"><span className="logo-a">a</span></span>
             <span className="logo-word"><span className="logo-t">T</span></span>
           </a>
           <div className="nav-links" id="navLinks">
-            <a href="#hero" className="nav-link active" data-text="Anasayfa">Anasayfa</a>
-            <a href="#problem" className="nav-link" data-text="Problem">Problem</a>
-            <a href="#hardware" className="nav-link" data-text="Donanım">Donanım</a>
-            <a href="#rag" className="nav-link" data-text="Zeka">Zeka</a>
-            <a href="#operation" className="nav-link" data-text="Operasyon">Operasyon</a>
-            <a href="#security" className="nav-link" data-text="Güvenlik">Güvenlik</a>
-            <a href="#vision" className="nav-link nav-link-cta" data-text="Vizyon">Bize Katıl!</a>
+            <a href="#hero" className="nav-link active" data-text={t.nav.home}>{t.nav.home}</a>
+            <a href="#problem" className="nav-link" data-text={t.nav.problem}>{t.nav.problem}</a>
+            <a href="#hardware" className="nav-link" data-text={t.nav.hardware}>{t.nav.hardware}</a>
+            <a href="#rag" className="nav-link" data-text={t.nav.intelligence}>{t.nav.intelligence}</a>
+            <a href="#operation" className="nav-link" data-text={t.nav.operation}>{t.nav.operation}</a>
+            <a href="#security" className="nav-link" data-text={t.nav.security}>{t.nav.security}</a>
+            <a href="#vision" className="nav-link nav-link-cta" data-text={t.nav.join}>{t.nav.join}</a>
           </div>
-          <button className="nav-toggle" id="navToggle" aria-label="Mobil menüyü aç/kapat" type="button">
+          <button
+            onClick={toggleLang}
+            aria-label="Switch language"
+            style={{
+              background: 'transparent',
+              border: '1px solid rgba(0,255,136,0.35)',
+              color: '#00FF88',
+              borderRadius: '6px',
+              padding: '4px 10px',
+              fontSize: '12px',
+              fontWeight: 700,
+              letterSpacing: '.08em',
+              cursor: 'pointer',
+              marginRight: '12px',
+              transition: 'all .2s',
+            }}
+          >
+            {t.langToggle}
+          </button>
+          <button className="nav-toggle" id="navToggle" aria-label={t.nav.mobileToggle} type="button">
             <span className="hamburger-line" aria-hidden="true"></span>
             <span className="hamburger-line" aria-hidden="true"></span>
             <span className="hamburger-line" aria-hidden="true"></span>
@@ -606,23 +657,23 @@ export default function Home() {
       </nav>
 
       {/* Mobile Menu */}
-      <div className="mobile-menu" id="mobileMenu" role="navigation" aria-label="Mobil navigasyon">
+      <div className="mobile-menu" id="mobileMenu" role="navigation" aria-label={t.nav.mobileNav}>
         <div className="mobile-menu-bg"></div>
         <div className="mobile-menu-content">
-          <a href="#hero" className="mobile-link">Anasayfa</a>
-          <a href="#problem" className="mobile-link">Problem</a>
-          <a href="#hardware" className="mobile-link">Donanım</a>
-          <a href="#rag" className="mobile-link">Zeka</a>
-          <a href="#operation" className="mobile-link">Operasyon</a>
-          <a href="#security" className="mobile-link">Güvenlik</a>
-          <a href="#vision" className="mobile-link mobile-link-cta">Bize Katıl!</a>
+          <a href="#hero" className="mobile-link">{t.nav.home}</a>
+          <a href="#problem" className="mobile-link">{t.nav.problem}</a>
+          <a href="#hardware" className="mobile-link">{t.nav.hardware}</a>
+          <a href="#rag" className="mobile-link">{t.nav.intelligence}</a>
+          <a href="#operation" className="mobile-link">{t.nav.operation}</a>
+          <a href="#security" className="mobile-link">{t.nav.security}</a>
+          <a href="#vision" className="mobile-link mobile-link-cta">{t.nav.join}</a>
         </div>
       </div>
 
       {/* Hero Section */}
       <section id="hero" className="section hero-section">
         <div className="hero-video-container">
-          <img src="/drone.jpeg" className="hero-video" id="heroVideo" alt="Drone görüntüsü" />
+          <img src="/drone.jpeg" className="hero-video" id="heroVideo" alt="Drone view" />
           <div className="hero-video-overlay"></div>
         </div>
         <div className="hero-particles" id="heroParticles"></div>
@@ -635,18 +686,16 @@ export default function Home() {
               <span id="toBeText"> to be.</span>
             </span>
           </h1>
-          <p className="hero-subtitle" id="heroSubtitle">
-            Küresel su ve gıda krizine karşı; her bitki için kendi mikro-iklimini simüle edebilen, RAG tabanlı ve tam otonom bir tarım ekosistemi inşa ediyoruz. Topraktan buluta, veriden eyleme giden bu devrime ortak olun.
-          </p>
+          <p className="hero-subtitle" id="heroSubtitle">{t.hero.subtitle}</p>
           <div className="hero-cta-row">
             <a href="#core-vision" className="hero-cta" id="heroCta">
-              <span className="hero-cta-text">Vizyonumuzu Keşfet</span>
+              <span className="hero-cta-text">{t.hero.exploreBtn}</span>
               <i className="fa-solid fa-arrow-right hero-cta-arrow"></i>
               <span className="hero-cta-glow"></span>
             </a>
-            <a href="/NaT_Executive_Vision_Paper_2026_TR.pdf" className="hero-cta-secondary" download>
+            <a href={t.hero.pdf} className="hero-cta-secondary" download>
               <i className="fa-solid fa-file-pdf"></i>
-              <span>Pitch Deck İndir</span>
+              <span>{t.hero.pitchBtn}</span>
             </a>
           </div>
           <div className="hero-float hero-float-1" data-speed="0.3"></div>
@@ -661,11 +710,9 @@ export default function Home() {
         <div className="bg-geometry shape-circle scroll-spin" data-scrub-speed="1.2"></div>
         <div className="bg-geometry shape-triangle scroll-float" data-scrub-speed="-0.8"></div>
         <div className="container">
-          <span className="section-tag"><i className="fa-solid fa-triangle-exclamation"></i> Küresel Kriz</span>
-          <h2 className="section-title anim-reveal">Problemin Farkındayız. Çözümü İnşa Ediyoruz.</h2>
-          <p className="section-desc anim-reveal">
-            Dünya tarımı, sürdürülemez uygulamalarla çökme noktasına yaklaşıyor. <strong>2050 yılında 10 milyar insanı</strong> doyurmak için üretimimizi %60 artırmak zorundayız — ancak mevcut ilkel yöntemlerle, tükenen su kaynaklarıyla ve öngörülemeyen iklim krizleriyle bu mümkün değil. Tarım, artık deneme-yanılma ile yapılamayacak kadar kritik bir sektördür.
-          </p>
+          <span className="section-tag"><i className="fa-solid fa-triangle-exclamation"></i> {t.problem.tag}</span>
+          <h2 className="section-title anim-reveal">{t.problem.title}</h2>
+          <p className="section-desc anim-reveal" dangerouslySetInnerHTML={{ __html: t.problem.desc }} />
           <div className="water-drops" id="waterDrops">
             {[1,2,3,4,5].map((i) => (
               <div key={i} className="water-drop">
@@ -685,20 +732,20 @@ export default function Home() {
             <div className="glass-card problem-card" data-speed="0.15">
               <div className="glass-card-shine"></div>
               <div className="card-icon-wrap"><i className="fa-solid fa-droplet-slash"></i></div>
-              <h4>Sessiz Felaket: Su ve Besin İsrafı</h4>
-              <p>Dünyadaki tatlı suyun <strong>%70'i</strong> tarımda kullanılıyor ve bunun yarısı buharlaşma, yanlış sulama veya sızıntı ile kayboluyor. Klasik yöntemler bitkinin ne istediğini "tahmin eder", sonuçta kaynaklar çöpe gider.</p>
+              <h4>{t.problem.card1Title}</h4>
+              <p dangerouslySetInnerHTML={{ __html: t.problem.card1Desc }} />
             </div>
             <div className="glass-card problem-card" data-speed="-0.2">
               <div className="glass-card-shine"></div>
               <div className="card-icon-wrap warn"><i className="fa-solid fa-temperature-arrow-up"></i></div>
-              <h4>İklim Kırılganlığı</h4>
-              <p>Geleneksel tarım, doğanın merhametine kalmıştır. Beklenmeyen bir don vakası, aşırı sıcaklık veya kuraklık, bir yıllık emeği günler içinde yok edebilir.</p>
+              <h4>{t.problem.card2Title}</h4>
+              <p>{t.problem.card2Desc}</p>
             </div>
             <div className="glass-card problem-card" data-speed="0.25">
               <div className="glass-card-shine"></div>
               <div className="card-icon-wrap info"><i className="fa-solid fa-link-slash"></i></div>
-              <h4>Veri Yalıtımı</h4>
-              <p>Tarımsal veriler yerel ve izole kalıyor. Çiftçiler aynı hataları tekrar tekrar yapıyor çünkü kolektif bir öğrenme ve proaktif müdahale mekanizması yok.</p>
+              <h4>{t.problem.card3Title}</h4>
+              <p>{t.problem.card3Desc}</p>
             </div>
           </div>
         </div>
@@ -707,29 +754,27 @@ export default function Home() {
       {/* Core Vision Section */}
       <section id="core-vision" className="section hardware-section" style={{ background: 'var(--dark)', paddingBottom: '4rem' }}>
         <div className="container">
-          <span className="section-tag tag-green"><i className="fa-solid fa-earth-americas"></i> Ekosistem Tasarımı</span>
-          <h2 className="section-title anim-reveal">Her Coğrafyada, Her Bitki İçin<br />Kusursuz &quot;Mikro-İklim&quot; Simülasyonu.</h2>
-          <p className="section-desc anim-reveal">
-            NaT (Natural Agriculture Technologies) olarak nihai amacımız, sadece veri okuyan değil, <strong>ortamı değiştiren</strong> reaktif ve otonom bir sistem yaratmak.
-          </p>
+          <span className="section-tag tag-green"><i className="fa-solid fa-earth-americas"></i> {t.coreVision.tag}</span>
+          <h2 className="section-title anim-reveal" dangerouslySetInnerHTML={{ __html: t.coreVision.title.replace('\n', '<br/>') }} />
+          <p className="section-desc anim-reveal" dangerouslySetInnerHTML={{ __html: t.coreVision.desc }} />
           <div className="features-grid">
             <div className="glass-card feature-card">
               <div className="glass-card-shine"></div>
               <div className="feature-icon-wrap"><i className="fa-solid fa-temperature-arrow-up"></i></div>
-              <h4>Dinamik Adaptasyon</h4>
-              <p>Tarlanızın nerede olduğu fark etmeksizin, sistem mevcut bitkilerin anlık metabolik ihtiyaçlarını okur.</p>
+              <h4>{t.coreVision.feat1Title}</h4>
+              <p>{t.coreVision.feat1Desc}</p>
             </div>
             <div className="glass-card feature-card">
               <div className="glass-card-shine"></div>
               <div className="feature-icon-wrap"><i className="fa-solid fa-droplet"></i></div>
-              <h4>Hassas Takviye Ağı</h4>
-              <p>Sadece gerektiği anda ve miligram/mililitre hassasiyetinde <strong>besin, su, ısı ve gübre takviyesi</strong> yapar.</p>
+              <h4>{t.coreVision.feat2Title}</h4>
+              <p dangerouslySetInnerHTML={{ __html: t.coreVision.feat2Desc }} />
             </div>
             <div className="glass-card feature-card">
               <div className="glass-card-shine"></div>
               <div className="feature-icon-wrap"><i className="fa-solid fa-microchip"></i></div>
-              <h4>Otonom Karar Mekanizması</h4>
-              <p>Bitki strese girmeden önce, yerel iklimin olumsuz etkilerini nötralize edecek mikro-müdahaleleri <strong>otomatik olarak devreye sokar.</strong></p>
+              <h4>{t.coreVision.feat3Title}</h4>
+              <p dangerouslySetInnerHTML={{ __html: t.coreVision.feat3Desc }} />
             </div>
           </div>
         </div>
@@ -737,22 +782,20 @@ export default function Home() {
 
       {/* Hardware Section */}
       <section id="hardware" className="section hardware-section" style={{ paddingTop: '4rem' }}>
-        <div className="section-watermark">DONANIM</div>
+        <div className="section-watermark">{t.hardware.watermark}</div>
         <div className="bg-geometry shape-ring scroll-scale" data-scrub-speed="0.5"></div>
         <div className="bg-geometry shape-ring scroll-scale-reverse" data-scrub-speed="-0.3"></div>
         <div className="container">
-          <span className="section-tag tag-green"><i className="fa-solid fa-microchip"></i> Donanım Ar-Ge</span>
-          <h2 className="section-title anim-reveal">Sahaya Gömülecek Zeka: sensSeries</h2>
-          <p className="section-desc anim-reveal">
-            NaT ekosisteminin sinir uçları olacak donanım ailemizi tasarlıyoruz. Hedefimiz, minimum enerji tüketimiyle maksimum veri toplayabilen, doğayla tam uyumlu cihazlar geliştirmek.
-          </p>
+          <span className="section-tag tag-green"><i className="fa-solid fa-microchip"></i> {t.hardware.tag}</span>
+          <h2 className="section-title anim-reveal">{t.hardware.title}</h2>
+          <p className="section-desc anim-reveal">{t.hardware.desc}</p>
           <div className="devices-showcase">
             <div className="device-float" data-speed="-0.3">
               <div className="glass-card device-card green-glow">
                 <div className="glass-card-shine"></div>
                 <img src="/assets/sensTree.png" alt="sensTree" className="device-image" style={{ width: '100%', height: 'auto', borderRadius: '12px', objectFit: 'cover' }} />
                 <h2 className="sensor-title" data-shadow="sensTree">sensTree</h2>
-                <p>Ağaçların biyolojik süreçlerini takip etmek amacıyla doğrudan gövdeye monte edilen, sağlam ve endüstriyel tasarımlı bir IoT cihazıdır. Beşli prob yapısı sayesinde ağacın fotosentez hızını, gövde içi nem dengesini ve mineral akışını &quot;Bütünleşik Yaşam Analizi&quot; yöntemiyle saniye saniye izler.</p>
+                <p dangerouslySetInnerHTML={{ __html: t.hardware.sensTreeDesc }} />
               </div>
             </div>
             <div className="device-float" data-speed="0.2">
@@ -760,7 +803,7 @@ export default function Home() {
                 <div className="glass-card-shine"></div>
                 <img src="/assets/sensSoil.png" alt="sensSoil" className="device-image" style={{ width: '100%', height: 'auto', borderRadius: '12px', objectFit: 'cover' }} />
                 <h2 className="sensor-title" data-shadow="sensSoil">sensSoil</h2>
-                <p>Toprak katmanlarına kolayca nüfuz edebilmesi için mızrak ucunu andıran keskin ve kama formunda bir tasarıma sahip yer altı sensörüdür. Toprağın kök bölgesindeki NPK değerlerini, pH seviyesini ve nem oranını anlık olarak ölçerek tarımsal verimliliğin dijital ikizini oluşturur.</p>
+                <p dangerouslySetInnerHTML={{ __html: t.hardware.sensSoilDesc }} />
               </div>
             </div>
             <div className="device-float" data-speed="-0.15">
@@ -768,7 +811,7 @@ export default function Home() {
                 <div className="glass-card-shine"></div>
                 <img src="/assets/sensPlant.png" alt="sensPlant" className="device-image" style={{ width: '100%', height: 'auto', borderRadius: '12px', objectFit: 'cover' }} />
                 <h2 className="sensor-title" data-shadow="sensPlant">sensPlant</h2>
-                <p>Fideler ve ince gövdeli bitkiler için tasarlanmış, mandalsı yapısıyla bitkiye zarar vermeden kenetlenen teknolojik bir takip cihazıdır. İç yüzeyindeki mikron iğneler aracılığıyla bitkinin biyokimyasal değişimlerini analiz ederek hastalıkları henüz belirti yokken &quot;Proaktif Zeka&quot; ile saptar.</p>
+                <p dangerouslySetInnerHTML={{ __html: t.hardware.sensPlantDesc }} />
               </div>
             </div>
           </div>
@@ -777,29 +820,27 @@ export default function Home() {
 
       {/* RAG Section */}
       <section id="rag" className="section rag-section">
-        <div className="section-watermark">ZEKA</div>
+        <div className="section-watermark">{t.rag.watermark}</div>
         <canvas id="networkCanvas" className="network-canvas"></canvas>
         <div className="bg-geometry shape-hex scroll-spin" data-scrub-speed="-1"></div>
         <div className="container rag-container">
-          <span className="section-tag tag-green"><i className="fa-solid fa-brain"></i> RAG Tabanlı Yapay Zeka</span>
-          <h2 className="section-title anim-reveal">Küresel Deneyim, Yerel Müdahale.</h2>
-          <p className="section-desc anim-reveal">
-            Yazılım ekibimiz, dev dil modellerinin (LLM) gücünü tarımsal veri tabanlarıyla birleştiren RAG (Retrieval-Augmented Generation) tabanlı bir mimari inşa ediyor.
-          </p>
+          <span className="section-tag tag-green"><i className="fa-solid fa-brain"></i> {t.rag.tag}</span>
+          <h2 className="section-title anim-reveal">{t.rag.title}</h2>
+          <p className="section-desc anim-reveal">{t.rag.desc}</p>
           <div className="glass-card prediction-card green-glow">
             <div className="glass-card-shine"></div>
             <div className="pred-icon"><i className="fa-solid fa-wand-magic-sparkles"></i></div>
             <div className="pred-text">
-              <h4>Proaktif Öngörü</h4>
-              <p>NaT, tarlanızdan gelen ham veriyi işleyecek ve &quot;3 gün sonra şu hastalık riski %84&quot; diyebilecek bir tahmin modeli üzerine eğitiliyor.</p>
+              <h4>{t.rag.pred1Title}</h4>
+              <p dangerouslySetInnerHTML={{ __html: t.rag.pred1Desc }} />
             </div>
           </div>
           <div className="glass-card prediction-card green-glow" style={{ marginTop: '1rem' }}>
             <div className="glass-card-shine"></div>
             <div className="pred-icon"><i className="fa-solid fa-network-wired"></i></div>
             <div className="pred-text">
-              <h4>Kolektif Federe Öğrenme</h4>
-              <p>Gelecekte sahaya inecek her bir NaT cihazı, merkezi modeli (gizliliği koruyarak) eğitecek. Arjantin&apos;deki bir tarlanın bulduğu optimal sulama stratejisi, Konya&apos;daki benzer bir tarlaya saniyeler içinde otomatik olarak uygulanabilecek.</p>
+              <h4>{t.rag.pred2Title}</h4>
+              <p dangerouslySetInnerHTML={{ __html: t.rag.pred2Desc }} />
             </div>
           </div>
         </div>
@@ -807,25 +848,23 @@ export default function Home() {
 
       {/* Operation Section */}
       <section id="operation" className="section operation-section">
-        <div className="section-watermark">OPERASYON</div>
+        <div className="section-watermark">{t.operation.watermark}</div>
         <div className="container">
-          <span className="section-tag tag-green"><i className="fa-solid fa-robot"></i> Operasyonel Vizyon</span>
-          <h2 className="section-title anim-reveal">Teşhisten Tedaviye Otonom Geçiş</h2>
-          <p className="section-desc anim-reveal">
-            Veri toplamak işin sadece yarısıdır. Asıl hedefimiz, bu veriyi fiziksel dünyada otonom bir eyleme dönüştürecek entegrasyonları sağlamaktır.
-          </p>
+          <span className="section-tag tag-green"><i className="fa-solid fa-robot"></i> {t.operation.tag}</span>
+          <h2 className="section-title anim-reveal">{t.operation.title}</h2>
+          <p className="section-desc anim-reveal">{t.operation.desc}</p>
           <div className="op-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', maxWidth: '900px', margin: '0 auto 3rem' }}>
             <div className="glass-card op-card" data-speed="0.2">
               <div className="glass-card-shine"></div>
               <div className="op-icon-wrap"><i className="fa-solid fa-tower-cell"></i></div>
-              <h4>API Entegrasyonu ve Noktasal Müdahale</h4>
-              <p>Yapay zekamız karar aldığında, tarladaki drone&apos;lara veya otonom sulama/gübreleme sistemlerine doğrudan API üzerinden <strong>&quot;noktasal müdahale&quot;</strong> emri verebilecek bir altyapı kurguluyoruz.</p>
+              <h4>{t.operation.card1Title}</h4>
+              <p dangerouslySetInnerHTML={{ __html: t.operation.card1Desc }} />
             </div>
             <div className="glass-card op-card" data-speed="-0.15">
               <div className="glass-card-shine"></div>
               <div className="op-icon-wrap"><i className="fa-solid fa-leaf"></i></div>
-              <h4>Maksimum Verim, Minimum Kimyasal</h4>
-              <p>Böylece tarlanın tamamını değil, sadece hastalanmak/kurumak üzere olan spesifik metrekareyi tedavi ederek kimyasal kullanımını <strong>%85&apos;e kadar azaltmayı</strong> planlıyoruz.</p>
+              <h4>{t.operation.card2Title}</h4>
+              <p dangerouslySetInnerHTML={{ __html: t.operation.card2Desc }} />
             </div>
           </div>
         </div>
@@ -835,37 +874,37 @@ export default function Home() {
       <section id="lab-test" className="lab-pin-section">
         <div className="lab-pin-container">
           <div className="lab-pin-title">
-            <h2>4 Adımda</h2>
-            <p>Laboratuvar testlerinden daha başarılıyız.</p>
+            <h2>{t.lab.title}</h2>
+            <p>{t.lab.subtitle}</p>
           </div>
           <div className="lab-video-bg">
-            <img src="/lab.jpg" className="lab-video-element" alt="Laboratuvar görüntüsü" />
+            <img src="/lab.jpg" className="lab-video-element" alt="Lab view" />
             <div className="lab-video-overlay"></div>
           </div>
           <div className="lab-glasses-track">
             <div className="glass-card lab-text-box box-tl anim-box" id="lab-box-1" style={{ borderRadius: '40px 10px 40px 10px', borderWidth: '2px' }}>
               <div className="glass-card-shine"></div>
               <div className="box-number-wrap">1</div>
-              <h4>Zaman Kaybı ve Gecikmeli Tepki</h4>
-              <p>Laboratuvar testlerinin en büyük dezavantajı, operasyonel doğası gereği yarattığı devasa zaman kaybıdır. Topraktan numune alınması, laboratuvara transfer edilmesi ve analiz sonuçlarının çıkması genellikle günler sürer.</p>
+              <h4>{t.lab.box1Title}</h4>
+              <p>{t.lab.box1Desc}</p>
             </div>
             <div className="glass-card lab-text-box box-rm anim-box" id="lab-box-2" style={{ borderRadius: '10px 40px 10px 40px', borderWidth: '3px' }}>
               <div className="glass-card-shine"></div>
               <div className="box-number-wrap">2</div>
-              <h4>Numune Yanılgısı ve Temsil Sorunu</h4>
-              <p>Geleneksel yöntemlerde, dönümlerce büyüklükteki bir araziyi temsil etmesi için sadece birkaç avuç toprak numunesi laboratuvara gönderilir. Ancak toprak yapısı asla homojen değildir.</p>
+              <h4>{t.lab.box2Title}</h4>
+              <p>{t.lab.box2Desc}</p>
             </div>
             <div className="glass-card lab-text-box box-bl anim-box" id="lab-box-3" style={{ borderRadius: '35px 35px 0 35px', borderWidth: '2px' }}>
               <div className="glass-card-shine"></div>
               <div className="box-number-wrap">3</div>
-              <h4>Ekosistemden Kopuş ve Değişen Kimya</h4>
-              <p>Toprak; sürekli kimyasal ve biyolojik etkileşim halinde olan, yaşayan bir ekosistemdir. Numune yerinden sökülüp taşıma kabına konduğu an hava teması, sarsıntı ve sıcaklık değişimleri nedeniyle içindeki mikrobiyolojik yapı bozulmaya başlar.</p>
+              <h4>{t.lab.box3Title}</h4>
+              <p>{t.lab.box3Desc}</p>
             </div>
             <div className="glass-card lab-text-box box-tr anim-box" id="lab-box-4" style={{ borderRadius: '10px 0 35px 10px', borderWidth: '4px' }}>
               <div className="glass-card-shine"></div>
               <div className="box-number-wrap">4</div>
-              <h4>Statik Veri vs. Dinamik Akış</h4>
-              <p>Laboratuvar testleri sadece numunenin alındığı saniyedeki durumu gösteren statik, tek seferlik bir fotoğraf sunar. Oysa tarım; suyun yer altına süzülmesi, köklerin besini emmesi ve gübrenin çözünmesi gibi sürekli devam eden dinamik bir süreçtir.</p>
+              <h4>{t.lab.box4Title}</h4>
+              <p>{t.lab.box4Desc}</p>
             </div>
           </div>
         </div>
@@ -873,35 +912,33 @@ export default function Home() {
 
       {/* Security Section */}
       <section id="security" className="section security-section">
-        <div className="section-watermark">GÜVENLİK</div>
+        <div className="section-watermark">{t.security.watermark}</div>
         <canvas id="shieldCanvas" className="shield-canvas"></canvas>
         <div className="container security-container">
-          <span className="section-tag tag-green"><i className="fa-solid fa-shield-halved"></i> Siber Kalkan</span>
-          <h2 className="section-title anim-reveal">Değiştirilemez Veri,<br />Erişilemez Donanım.</h2>
-          <p className="section-desc anim-reveal">
-            NaT ekosistemi, askeri düzeyde AES-256 şifreleme ve donanım bazlı kimlik doğrulama ile korunur. Verileriniz <strong>uçtan uca şifrelenir</strong>, cihazlarınız dış dünyaya &quot;görünmez&quot; kalır.
-          </p>
+          <span className="section-tag tag-green"><i className="fa-solid fa-shield-halved"></i> {t.security.tag}</span>
+          <h2 className="section-title anim-reveal">{t.security.title}<br />{t.security.title2}</h2>
+          <p className="section-desc anim-reveal" dangerouslySetInnerHTML={{ __html: t.security.desc }} />
           <div className="sec-grid">
             <div className="glass-card sec-card green-glow" data-speed="0.15">
               <div className="glass-card-shine"></div>
               <div className="sec-icon-wrap"><i className="fa-solid fa-lock"></i></div>
-              <h4>Match-Lock Protokolü</h4>
-              <p>Cihaz ağa ilk kez dahil edildiğinde, kullanıcı hesabı ile <strong>kriptografik olarak eşleşir</strong> ve dış dünyaya &quot;görünmez&quot; moda geçer.</p>
-              <div className="sec-detail"><i className="fa-solid fa-eye-slash"></i> Görünmez Mod Aktif</div>
+              <h4>{t.security.card1Title}</h4>
+              <p dangerouslySetInnerHTML={{ __html: t.security.card1Desc }} />
+              <div className="sec-detail"><i className="fa-solid fa-eye-slash"></i> {t.security.card1Badge}</div>
             </div>
             <div className="glass-card sec-card green-glow" data-speed="-0.2">
               <div className="glass-card-shine"></div>
               <div className="sec-icon-wrap"><i className="fa-solid fa-fingerprint"></i></div>
-              <h4>Dijital Genetik Kod</h4>
-              <p>Her cihaz, üretim sırasında <strong>30 haneli benzersiz</strong> bir seri numarası ile fabrikada mühürlenir.</p>
-              <div className="sec-detail"><i className="fa-solid fa-barcode"></i> 30 Haneli Seri Numara</div>
+              <h4>{t.security.card2Title}</h4>
+              <p dangerouslySetInnerHTML={{ __html: t.security.card2Desc }} />
+              <div className="sec-detail"><i className="fa-solid fa-barcode"></i> {t.security.card2Badge}</div>
             </div>
             <div className="glass-card sec-card green-glow" data-speed="0.25">
               <div className="glass-card-shine"></div>
               <div className="sec-icon-wrap"><i className="fa-solid fa-database"></i></div>
-              <h4>BLOB SQL — Değişmez Kayıtlar</h4>
-              <p>Tüm tarım kayıtları BLOB formatında saklanır ve her kayıt <strong>kriptografik hash zinciriyle</strong> birbirine bağlanır.</p>
-              <div className="sec-detail"><i className="fa-solid fa-clock-rotate-left"></i> Geriye Dönük Doğrulanabilir</div>
+              <h4>{t.security.card3Title}</h4>
+              <p dangerouslySetInnerHTML={{ __html: t.security.card3Desc }} />
+              <div className="sec-detail"><i className="fa-solid fa-clock-rotate-left"></i> {t.security.card3Badge}</div>
             </div>
           </div>
           <div className="glow-orb orb-1"></div>
@@ -919,18 +956,18 @@ export default function Home() {
         </div>
         <div className="container vision-container">
           <span className="section-tag tag-green" style={{ marginBottom: '1rem' }}>
-            <i className="fa-solid fa-rocket"></i> Bize Katılın
+            <i className="fa-solid fa-rocket"></i> {t.vision.tag}
           </span>
           <h2 className="section-title anim-reveal vision-title">
-            Tarımı İnsansız ve İsrafsız<br />Bir Ekosisteme Dönüştürüyoruz.
+            {t.vision.title}<br />{t.vision.title2}
           </h2>
           <p className="section-desc anim-reveal">
-            NaT olarak, küresel tarım krizine karşı veri odaklı ve tam otonom bir çözüm üretiyoruz. Yolun başındaki dinamik bir girişim olsak da vizyonumuz net: Tarımı dışa bağımlılıktan kurtararak ekonomik olarak erişilebilir ve sürdürülebilir bir altyapıya kavuşturmak.
+            {t.vision.desc1}
             <br /><br />
-            Kendi öz kaynaklarımızla başlattığımız bu dönüşüm sürecinde; küresel büyüme potansiyeline inanan melek yatırımcıları, stratejik partnerleri ve inovasyon öncülerini saflarımıza davet ediyoruz.
+            {t.vision.desc2}
           </p>
           <Link href="/iletisim" className="cta-button" id="ctaButton" style={{ marginTop: '2rem' }}>
-            <span className="cta-btn-text">Kurucu Ekiple İletişime Geç</span>
+            <span className="cta-btn-text">{t.vision.cta}</span>
             <i className="fa-solid fa-arrow-right cta-btn-icon"></i>
             <span className="cta-blob cta-blob-1"></span>
             <span className="cta-blob cta-blob-2"></span>
@@ -951,26 +988,26 @@ export default function Home() {
               <p>Natural Agriculture Technologies</p>
             </div>
             <div className="footer-col col-lg-2">
-              <h5>Ekosistem</h5>
+              <h5>{t.footer.ecosystem}</h5>
               <a href="#hardware"><i className="fa-solid fa-microchip"></i> sensSeries</a>
-              <a href="#rag"><i className="fa-solid fa-brain"></i> RAG Zeka</a>
-              <a href="#operation"><i className="fa-solid fa-robot"></i> Otonom Araçlar</a>
+              <a href="#rag"><i className="fa-solid fa-brain"></i> RAG</a>
+              <a href="#operation"><i className="fa-solid fa-robot"></i> {t.operation.tag}</a>
             </div>
             <div className="footer-col col-lg-2">
-              <h5>Şirket</h5>
-              <a href="/">Anasayfa</a>
-              <a href="#vision">Kariyer</a>
-              <Link href="/iletisim">İletişim</Link>
+              <h5>{t.footer.company}</h5>
+              <a href="/">{t.footer.home}</a>
+              <a href="#vision">{t.footer.career}</a>
+              <Link href="/iletisim">{t.footer.contact}</Link>
             </div>
             <div className="footer-col col-lg-2">
-              <h5>Yasal</h5>
-              <a href="#">Gizlilik Politikası</a>
-              <a href="#">KVKK</a>
-              <a href="#">Kullanım Şartları</a>
+              <h5>{t.footer.legal}</h5>
+              <a href="#">{t.footer.privacy}</a>
+              <a href="#">{t.footer.kvkk}</a>
+              <a href="#">{t.footer.terms}</a>
             </div>
           </div>
           <div className="footer-bottom">
-            <p>&copy; 2026 NaT — Natural Agriculture Technologies. Tüm hakları saklıdır.</p>
+            <p>{t.footer.copyright}</p>
           </div>
         </div>
       </footer>

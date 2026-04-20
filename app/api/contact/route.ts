@@ -1,7 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse, userAgent } from 'next/server';
 import nodemailer from 'nodemailer';
 
-// In-memory rate limiter (use Redis for multi-instance deployments)
 const ipRateMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT = 3;
 const RATE_WINDOW = 60_000;
@@ -66,22 +65,38 @@ function esc(s: unknown): string {
 
 function buildHtml(data: {
   name: string; email: string; subject: string; message: string;
-  orgName: string; orgRole: string; ip: string;
+  orgName: string; orgRole: string;
+  ip: string;
+  deviceType: string; deviceVendor: string; deviceModel: string;
+  osName: string; osVersion: string;
+  browserName: string; browserVersion: string;
+  country: string; city: string; region: string;
+  latitude: string; longitude: string;
+  acceptLang: string;
 }): string {
-  const { name, email, subject, message, orgName, orgRole, ip } = data;
+  const {
+    name, email, subject, message, orgName, orgRole,
+    ip, deviceType, deviceVendor, deviceModel,
+    osName, osVersion, browserName, browserVersion,
+    country, city, region, latitude, longitude, acceptLang,
+  } = data;
+
   const orgSection = orgName ? `
     <tr><td style="padding:4px 0;"><strong style="color:#00cc6a;">🏢 Şirket:</strong> ${esc(orgName)}</td></tr>
     <tr><td style="padding:4px 0;"><strong style="color:#00cc6a;">🪪 Ünvan:</strong> ${esc(orgRole)}</td></tr>` : '';
 
-  const ipSection = ip && ip !== 'unknown' ? `
-    <tr><td style="padding:4px 0;font-size:13px;color:#b0aea7;">🌐 IP (sunucu taraflı): <strong>${esc(ip)}</strong></td></tr>` : '';
+  const deviceLabel = [deviceVendor, deviceModel].filter(Boolean).join(' ') || '—';
+  const deviceTypeLabel = deviceType || 'Masaüstü';
+
+  const locationParts = [city, region, country].filter(Boolean).join(', ') || '—';
+  const coordsLabel = latitude && longitude ? `${latitude}, ${longitude}` : '—';
 
   return `<!DOCTYPE html>
 <html lang="tr"><head><meta charset="UTF-8"></head>
 <body style="margin:0;padding:0;background:#080c0a;font-family:Arial,sans-serif;">
 <table width="100%" cellPadding="0" cellSpacing="0" style="background:#080c0a;padding:32px 0;">
 <tr><td align="center">
-<table width="600" cellPadding="0" cellSpacing="0" style="background:#0e1512;border:1px solid #1a2e23;border-radius:16px;overflow:hidden;">
+<table width="620" cellPadding="0" cellSpacing="0" style="background:#0e1512;border:1px solid #1a2e23;border-radius:16px;overflow:hidden;">
   <tr>
     <td style="background:linear-gradient(135deg,#00FF88,#00cc6a);padding:20px 32px;">
       <h1 style="margin:0;color:#080c0a;font-size:20px;font-weight:800;">📩 Yeni İletişim Formu Mesajı</h1>
@@ -90,18 +105,40 @@ function buildHtml(data: {
   </tr>
   <tr><td style="padding:28px 32px;">
     <table width="100%" cellPadding="0" cellSpacing="0" style="color:#F5F4EE;font-size:14px;line-height:1.7;">
-      <tr><td colspan="2" style="padding-bottom:8px;">
-        <h3 style="margin:0 0 12px;color:#00cc6a;font-size:14px;border-bottom:1px solid #1a2e23;padding-bottom:6px;">👤 Gönderen</h3>
+
+      <!-- Gönderen -->
+      <tr><td colspan="2" style="padding-bottom:4px;">
+        <h3 style="margin:0 0 10px;color:#00cc6a;font-size:13px;letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid #1a2e23;padding-bottom:6px;">👤 Gönderen</h3>
       </td></tr>
       <tr><td style="padding:4px 0;"><strong style="color:#00cc6a;">Ad Soyad:</strong> ${esc(name)}</td></tr>
       <tr><td style="padding:4px 0;"><strong style="color:#00cc6a;">E-posta:</strong> <a href="mailto:${esc(email)}" style="color:#00FF88;">${esc(email)}</a></td></tr>
       <tr><td style="padding:4px 0;"><strong style="color:#00cc6a;">Konu:</strong> ${esc(subject)}</td></tr>
       ${orgSection}
+
+      <!-- Mesaj -->
       <tr><td style="padding:16px 0 8px;">
-        <h3 style="margin:0 0 8px;color:#00cc6a;font-size:14px;border-bottom:1px solid #1a2e23;padding-bottom:6px;">💬 Mesaj</h3>
+        <h3 style="margin:0 0 8px;color:#00cc6a;font-size:13px;letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid #1a2e23;padding-bottom:6px;">💬 Mesaj</h3>
         <div style="background:#080c0a;border:1px solid #1a2e23;border-radius:10px;padding:16px;color:#b0aea7;white-space:pre-wrap;">${esc(message)}</div>
       </td></tr>
-      ${ipSection}
+
+      <!-- Cihaz Bilgileri -->
+      <tr><td style="padding:16px 0 4px;">
+        <h3 style="margin:0 0 10px;color:#00cc6a;font-size:13px;letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid #1a2e23;padding-bottom:6px;">📱 Cihaz Bilgileri</h3>
+      </td></tr>
+      <tr><td style="padding:3px 0;font-size:13px;color:#b0aea7;">💻 <strong style="color:#d0cec8;">Cihaz Türü:</strong> ${esc(deviceTypeLabel)}</td></tr>
+      <tr><td style="padding:3px 0;font-size:13px;color:#b0aea7;">📟 <strong style="color:#d0cec8;">Cihaz Modeli:</strong> ${esc(deviceLabel)}</td></tr>
+      <tr><td style="padding:3px 0;font-size:13px;color:#b0aea7;">🖥️ <strong style="color:#d0cec8;">İşletim Sistemi:</strong> ${esc(osName || '—')} ${esc(osVersion || '')}</td></tr>
+      <tr><td style="padding:3px 0;font-size:13px;color:#b0aea7;">🌐 <strong style="color:#d0cec8;">Tarayıcı:</strong> ${esc(browserName || '—')} ${esc(browserVersion || '')}</td></tr>
+      <tr><td style="padding:3px 0;font-size:13px;color:#b0aea7;">🗣️ <strong style="color:#d0cec8;">Tarayıcı Dili:</strong> ${esc(acceptLang || '—')}</td></tr>
+
+      <!-- Konum Bilgileri -->
+      <tr><td style="padding:16px 0 4px;">
+        <h3 style="margin:0 0 10px;color:#00cc6a;font-size:13px;letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid #1a2e23;padding-bottom:6px;">📍 Konum Bilgileri</h3>
+      </td></tr>
+      <tr><td style="padding:3px 0;font-size:13px;color:#b0aea7;">🌍 <strong style="color:#d0cec8;">Konum:</strong> ${esc(locationParts)}</td></tr>
+      <tr><td style="padding:3px 0;font-size:13px;color:#b0aea7;">🗺️ <strong style="color:#d0cec8;">Koordinatlar:</strong> ${esc(coordsLabel)}</td></tr>
+      <tr><td style="padding:3px 0;font-size:13px;color:#b0aea7;">🌐 <strong style="color:#d0cec8;">IP Adresi:</strong> ${esc(ip !== 'unknown' ? ip : '—')}</td></tr>
+
     </table>
   </td></tr>
   <tr>
@@ -124,6 +161,17 @@ export async function POST(request: NextRequest) {
       { status: 429 }
     );
   }
+
+  // Device & browser detection using Next.js built-in userAgent (no external API)
+  const { browser, device, os } = userAgent(request);
+
+  // Geolocation from Vercel's automatic headers (no external API)
+  const country = request.headers.get('x-vercel-ip-country') ?? '';
+  const city = decodeURIComponent(request.headers.get('x-vercel-ip-city') ?? '');
+  const region = request.headers.get('x-vercel-ip-country-region') ?? '';
+  const latitude = request.headers.get('x-vercel-ip-latitude') ?? '';
+  const longitude = request.headers.get('x-vercel-ip-longitude') ?? '';
+  const acceptLang = (request.headers.get('accept-language') ?? '').split(',')[0] ?? '';
 
   let body: Record<string, unknown> = {};
   try { body = await request.json(); } catch { /* ignore parse errors */ }
@@ -157,7 +205,24 @@ export async function POST(request: NextRequest) {
       to: process.env.MAIL_TO,
       replyTo: `"${s.name}" <${s.email}>`,
       subject: `📩 [${subjectLabel}] ${s.name} — NaT İletişim Formu`,
-      html: buildHtml({ ...s, subject: subjectLabel, ip }),
+      html: buildHtml({
+        ...s,
+        subject: subjectLabel,
+        ip,
+        deviceType: device.type ?? '',
+        deviceVendor: device.vendor ?? '',
+        deviceModel: device.model ?? '',
+        osName: os.name ?? '',
+        osVersion: os.version ?? '',
+        browserName: browser.name ?? '',
+        browserVersion: browser.version ?? '',
+        country,
+        city,
+        region,
+        latitude,
+        longitude,
+        acceptLang,
+      }),
       text: `Gönderen: ${s.name} <${s.email}>\nKonu: ${subjectLabel}\n\n${s.message}`,
     });
 
