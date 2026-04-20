@@ -16,101 +16,108 @@ export default function Home() {
   const t = getTranslation(lang);
 
   useEffect(() => {
-    type GsapTl = { to: (t: unknown, v: unknown, p?: unknown) => GsapTl; fromTo: (t: unknown, f: unknown, v: unknown, p?: unknown) => GsapTl };
-    const load = () => {
-      const win = window as typeof window & {
-        gsap?: { registerPlugin: (...a: unknown[]) => void; to: (t: unknown, v: unknown) => void; fromTo: (t: unknown, f: unknown, v: unknown) => void; timeline: (v?: unknown) => GsapTl };
-        ScrollTrigger?: { create: (v: unknown) => void; refresh: () => void };
-      };
-      if (!win.gsap || !win.ScrollTrigger) { setTimeout(load, 100); return; }
-      const { gsap, ScrollTrigger } = win;
-      gsap.registerPlugin(ScrollTrigger);
-
-      // Preloader
-      window.addEventListener('load', () => {
-        const pre = document.getElementById('preloader');
-        if (pre) gsap.to(pre, { opacity: 0, duration: 0.6, delay: 0.5, onComplete: () => { pre.style.display = 'none'; startHero(); } });
-      });
-
-      // Hero entrance
-      function startHero() {
-        let expanded = false;
-        const tl = gsap.timeline();
-        tl.fromTo('.title-line-top', { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: 0.8, ease: 'power3.out' })
-          .fromTo('.title-line-bottom', { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.8, ease: 'power3.out' }, '-=0.6')
-          .to('.hero-subtitle', { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, '-=0.4')
-          .to('.hero-cta-row', { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', onComplete: () => {
-            if (!expanded) { expanded = true; expandNat(() => setTimeout(() => collapseNat(), 1600)); }
-          }}, '-=0.3');
-      }
-
-      // NAT text expand/collapse
-      function expandNat(cb?: () => void) {
-        const el = document.getElementById('heroNatTrigger');
-        const br = document.getElementById('natBreak');
-        if (!el) return;
-        gsap.to(el, { opacity: 0, duration: 0.2, onComplete: () => {
-          el.textContent = 'Natural Agriculture Technologies';
-          el.classList.add('nat-is-expanded');
-          if (br) br.style.display = '';
-          gsap.to(el, { opacity: 1, duration: 0.4, onComplete: cb });
-        }});
-      }
-      function collapseNat(cb?: () => void) {
-        const el = document.getElementById('heroNatTrigger');
-        const br = document.getElementById('natBreak');
-        if (!el) return;
-        gsap.to(el, { opacity: 0, duration: 0.2, onComplete: () => {
-          el.textContent = 'NAT';
-          el.classList.remove('nat-is-expanded');
-          if (br) br.style.display = 'none';
-          gsap.to(el, { opacity: 1, duration: 0.35, onComplete: cb });
-        }});
-      }
-      const natEl = document.getElementById('heroNatTrigger');
-      if (natEl) {
-        let hovered = false;
-        natEl.addEventListener('mouseenter', () => { hovered = true; expandNat(); });
-        natEl.addEventListener('mouseleave', () => { hovered = false; setTimeout(() => { if (!hovered) collapseNat(); }, 400); });
-      }
-
-      // Nav scroll
-      const navbar = document.getElementById('navbar');
-      window.addEventListener('scroll', () => {
-        if (!navbar) return;
-        navbar.classList.toggle('scrolled', window.scrollY > 80);
-      }, { passive: true });
-
-      // Nav toggle
-      const navToggle = document.getElementById('navToggle');
-      const mobileMenu = document.getElementById('mobileMenu');
-      if (navToggle && mobileMenu) {
-        navToggle.addEventListener('click', () => {
-          navToggle.classList.toggle('open');
-          mobileMenu.classList.toggle('open');
-          document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
-        });
-        mobileMenu.querySelectorAll('.mobile-link').forEach((l) => l.addEventListener('click', () => {
-          navToggle.classList.remove('open'); mobileMenu.classList.remove('open'); document.body.style.overflow = '';
-        }));
-      }
-
-      // Scroll reveal
-      document.querySelectorAll<HTMLElement>('.anim-reveal, .problem-card, .device-float, .prediction-card, .op-card, .sec-card, .lab-card').forEach((el, i) => {
-        gsap.to(el, { opacity: 1, y: 0, duration: 0.65, delay: (i % 3) * 0.1,
-          scrollTrigger: { trigger: el, start: 'top 88%', once: true } });
-      });
-
-      // Smooth scroll
-      document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((a) =>
-        a.addEventListener('click', (e) => {
-          e.preventDefault();
-          const t = document.querySelector(a.getAttribute('href') || '');
-          if (t) t.scrollIntoView({ behavior: 'smooth' });
-        })
-      );
+    // Preloader fade + hero CSS animation
+    const showHero = () => {
+      const pre = document.getElementById('preloader');
+      if (!pre) { document.body.classList.add('hero-animate'); return; }
+      setTimeout(() => { pre.style.transition = 'opacity 0.6s ease'; pre.style.opacity = '0'; }, 500);
+      setTimeout(() => {
+        pre.style.display = 'none';
+        document.body.classList.add('hero-animate');
+        // Auto expand/collapse NAT
+        setTimeout(() => {
+          const el = document.getElementById('heroNatTrigger');
+          const br = document.getElementById('natBreak');
+          if (!el) return;
+          el.style.opacity = '0';
+          setTimeout(() => {
+            el.textContent = 'Natural Agriculture Technologies';
+            el.classList.add('nat-is-expanded');
+            if (br) br.style.display = '';
+            el.style.opacity = '1';
+            setTimeout(() => {
+              el.style.opacity = '0';
+              setTimeout(() => {
+                el.textContent = 'NAT';
+                el.classList.remove('nat-is-expanded');
+                if (br) br.style.display = 'none';
+                el.style.opacity = '1';
+              }, 200);
+            }, 2000);
+          }, 200);
+        }, 1200);
+      }, 1100);
     };
-    load();
+    if (document.readyState === 'complete') showHero();
+    else window.addEventListener('load', showHero, { once: true });
+
+    // NAT hover
+    const natEl = document.getElementById('heroNatTrigger');
+    if (natEl) {
+      let hovered = false;
+      const expand = () => {
+        natEl.style.opacity = '0';
+        setTimeout(() => {
+          natEl.textContent = 'Natural Agriculture Technologies';
+          natEl.classList.add('nat-is-expanded');
+          const br = document.getElementById('natBreak');
+          if (br) br.style.display = '';
+          natEl.style.opacity = '1';
+        }, 200);
+      };
+      const collapse = () => {
+        natEl.style.opacity = '0';
+        setTimeout(() => {
+          natEl.textContent = 'NAT';
+          natEl.classList.remove('nat-is-expanded');
+          const br = document.getElementById('natBreak');
+          if (br) br.style.display = 'none';
+          natEl.style.opacity = '1';
+        }, 200);
+      };
+      natEl.addEventListener('mouseenter', () => { hovered = true; expand(); });
+      natEl.addEventListener('mouseleave', () => { hovered = false; setTimeout(() => { if (!hovered) collapse(); }, 400); });
+    }
+
+    // Nav scroll
+    const navbar = document.getElementById('navbar');
+    const onScroll = () => navbar?.classList.toggle('scrolled', window.scrollY > 80);
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // Mobile nav toggle
+    const navToggle = document.getElementById('navToggle');
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (navToggle && mobileMenu) {
+      navToggle.addEventListener('click', () => {
+        navToggle.classList.toggle('open');
+        mobileMenu.classList.toggle('open');
+        document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+      });
+      mobileMenu.querySelectorAll('.mobile-link').forEach((l) => l.addEventListener('click', () => {
+        navToggle.classList.remove('open'); mobileMenu.classList.remove('open'); document.body.style.overflow = '';
+      }));
+    }
+
+    // Scroll reveal via IntersectionObserver
+    const revealEls = document.querySelectorAll<HTMLElement>('.anim-reveal, .problem-card, .device-float, .prediction-card, .op-card, .sec-card, .lab-card');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('revealed'); observer.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    revealEls.forEach((el) => observer.observe(el));
+
+    // Smooth scroll
+    document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((a) =>
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = document.querySelector(a.getAttribute('href') || '');
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+      })
+    );
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      observer.disconnect();
+    };
   }, []);
 
   return (
@@ -180,11 +187,11 @@ export default function Home() {
           <div className="hero-cta-row" style={{ opacity: 0, transform: 'translateY(20px)' }}>
             <a href="#core-vision" className="hero-cta" id="heroCta">
               <span className="hero-cta-text">{t.hero.exploreBtn}</span>
-              <i className="fa-solid fa-arrow-right hero-cta-arrow"></i>
+              <span className="hero-cta-arrow">→</span>
               <span className="hero-cta-glow"></span>
             </a>
             <a href={t.hero.pdf} className="hero-cta-secondary" download>
-              <i className="fa-solid fa-file-pdf"></i>
+              📄
               <span>{t.hero.pitchBtn}</span>
             </a>
           </div>
@@ -195,25 +202,25 @@ export default function Home() {
       <section id="problem" className="section problem-section">
         <div className="section-watermark">PROBLEM</div>
         <div className="container">
-          <span className="section-tag"><i className="fa-solid fa-triangle-exclamation"></i> {t.problem.tag}</span>
+          <span className="section-tag">⚠️ {t.problem.tag}</span>
           <h2 className="section-title anim-reveal">{t.problem.title}</h2>
           <p className="section-desc anim-reveal" dangerouslySetInnerHTML={{ __html: t.problem.desc }} />
           <div className="problem-grid">
             <div className="glass-card problem-card">
               <div className="glass-card-shine"></div>
-              <div className="card-icon-wrap"><i className="fa-solid fa-droplet-slash"></i></div>
+              <div className="card-icon-wrap">💧</div>
               <h4>{t.problem.card1Title}</h4>
               <p dangerouslySetInnerHTML={{ __html: t.problem.card1Desc }} />
             </div>
             <div className="glass-card problem-card">
               <div className="glass-card-shine"></div>
-              <div className="card-icon-wrap warn"><i className="fa-solid fa-temperature-arrow-up"></i></div>
+              <div className="card-icon-wrap warn">🌡️</div>
               <h4>{t.problem.card2Title}</h4>
               <p>{t.problem.card2Desc}</p>
             </div>
             <div className="glass-card problem-card">
               <div className="glass-card-shine"></div>
-              <div className="card-icon-wrap info"><i className="fa-solid fa-link-slash"></i></div>
+              <div className="card-icon-wrap info">⚡</div>
               <h4>{t.problem.card3Title}</h4>
               <p>{t.problem.card3Desc}</p>
             </div>
@@ -224,25 +231,25 @@ export default function Home() {
       {/* Core Vision */}
       <section id="core-vision" className="section hardware-section" style={{ background: 'var(--dark)', paddingBottom: '4rem' }}>
         <div className="container">
-          <span className="section-tag tag-green"><i className="fa-solid fa-earth-americas"></i> {t.coreVision.tag}</span>
+          <span className="section-tag tag-green">🌍 {t.coreVision.tag}</span>
           <h2 className="section-title anim-reveal" dangerouslySetInnerHTML={{ __html: t.coreVision.title.replace('\n', '<br/>') }} />
           <p className="section-desc anim-reveal" dangerouslySetInnerHTML={{ __html: t.coreVision.desc }} />
           <div className="features-grid">
             <div className="glass-card feature-card">
               <div className="glass-card-shine"></div>
-              <div className="feature-icon-wrap"><i className="fa-solid fa-temperature-arrow-up"></i></div>
+              <div className="feature-icon-wrap">🌡️</div>
               <h4>{t.coreVision.feat1Title}</h4>
               <p>{t.coreVision.feat1Desc}</p>
             </div>
             <div className="glass-card feature-card">
               <div className="glass-card-shine"></div>
-              <div className="feature-icon-wrap"><i className="fa-solid fa-droplet"></i></div>
+              <div className="feature-icon-wrap">💧</div>
               <h4>{t.coreVision.feat2Title}</h4>
               <p dangerouslySetInnerHTML={{ __html: t.coreVision.feat2Desc }} />
             </div>
             <div className="glass-card feature-card">
               <div className="glass-card-shine"></div>
-              <div className="feature-icon-wrap"><i className="fa-solid fa-microchip"></i></div>
+              <div className="feature-icon-wrap">⚙️</div>
               <h4>{t.coreVision.feat3Title}</h4>
               <p dangerouslySetInnerHTML={{ __html: t.coreVision.feat3Desc }} />
             </div>
@@ -254,7 +261,7 @@ export default function Home() {
       <section id="hardware" className="section hardware-section" style={{ paddingTop: '4rem' }}>
         <div className="section-watermark">{t.hardware.watermark}</div>
         <div className="container">
-          <span className="section-tag tag-green"><i className="fa-solid fa-microchip"></i> {t.hardware.tag}</span>
+          <span className="section-tag tag-green">⚙️ {t.hardware.tag}</span>
           <h2 className="section-title anim-reveal">{t.hardware.title}</h2>
           <p className="section-desc anim-reveal">{t.hardware.desc}</p>
           <div className="devices-showcase">
@@ -290,12 +297,12 @@ export default function Home() {
       <section id="rag" className="section rag-section">
         <div className="section-watermark">{t.rag.watermark}</div>
         <div className="container rag-container">
-          <span className="section-tag tag-green"><i className="fa-solid fa-brain"></i> {t.rag.tag}</span>
+          <span className="section-tag tag-green">🧠 {t.rag.tag}</span>
           <h2 className="section-title anim-reveal">{t.rag.title}</h2>
           <p className="section-desc anim-reveal">{t.rag.desc}</p>
           <div className="glass-card prediction-card green-glow">
             <div className="glass-card-shine"></div>
-            <div className="pred-icon"><i className="fa-solid fa-wand-magic-sparkles"></i></div>
+            <div className="pred-icon">✨</div>
             <div className="pred-text">
               <h4>{t.rag.pred1Title}</h4>
               <p dangerouslySetInnerHTML={{ __html: t.rag.pred1Desc }} />
@@ -303,7 +310,7 @@ export default function Home() {
           </div>
           <div className="glass-card prediction-card green-glow" style={{ marginTop: '1rem' }}>
             <div className="glass-card-shine"></div>
-            <div className="pred-icon"><i className="fa-solid fa-network-wired"></i></div>
+            <div className="pred-icon">🔄</div>
             <div className="pred-text">
               <h4>{t.rag.pred2Title}</h4>
               <p dangerouslySetInnerHTML={{ __html: t.rag.pred2Desc }} />
@@ -316,19 +323,19 @@ export default function Home() {
       <section id="operation" className="section operation-section">
         <div className="section-watermark">{t.operation.watermark}</div>
         <div className="container">
-          <span className="section-tag tag-green"><i className="fa-solid fa-robot"></i> {t.operation.tag}</span>
+          <span className="section-tag tag-green">🤖 {t.operation.tag}</span>
           <h2 className="section-title anim-reveal">{t.operation.title}</h2>
           <p className="section-desc anim-reveal">{t.operation.desc}</p>
           <div className="op-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', maxWidth: '900px', margin: '0 auto 3rem' }}>
             <div className="glass-card op-card">
               <div className="glass-card-shine"></div>
-              <div className="op-icon-wrap"><i className="fa-solid fa-tower-cell"></i></div>
+              <div className="op-icon-wrap">📡</div>
               <h4>{t.operation.card1Title}</h4>
               <p dangerouslySetInnerHTML={{ __html: t.operation.card1Desc }} />
             </div>
             <div className="glass-card op-card">
               <div className="glass-card-shine"></div>
-              <div className="op-icon-wrap"><i className="fa-solid fa-leaf"></i></div>
+              <div className="op-icon-wrap">🌿</div>
               <h4>{t.operation.card2Title}</h4>
               <p dangerouslySetInnerHTML={{ __html: t.operation.card2Desc }} />
             </div>
@@ -366,30 +373,30 @@ export default function Home() {
       <section id="security" className="section security-section">
         <div className="section-watermark">{t.security.watermark}</div>
         <div className="container security-container">
-          <span className="section-tag tag-green"><i className="fa-solid fa-shield-halved"></i> {t.security.tag}</span>
+          <span className="section-tag tag-green">🛡️ {t.security.tag}</span>
           <h2 className="section-title anim-reveal">{t.security.title}<br />{t.security.title2}</h2>
           <p className="section-desc anim-reveal" dangerouslySetInnerHTML={{ __html: t.security.desc }} />
           <div className="sec-grid">
             <div className="glass-card sec-card green-glow">
               <div className="glass-card-shine"></div>
-              <div className="sec-icon-wrap"><i className="fa-solid fa-lock"></i></div>
+              <div className="sec-icon-wrap">🔒</div>
               <h4>{t.security.card1Title}</h4>
               <p dangerouslySetInnerHTML={{ __html: t.security.card1Desc }} />
-              <div className="sec-detail"><i className="fa-solid fa-eye-slash"></i> {t.security.card1Badge}</div>
+              <div className="sec-detail">👁 {t.security.card1Badge}</div>
             </div>
             <div className="glass-card sec-card green-glow">
               <div className="glass-card-shine"></div>
-              <div className="sec-icon-wrap"><i className="fa-solid fa-fingerprint"></i></div>
+              <div className="sec-icon-wrap">🔐</div>
               <h4>{t.security.card2Title}</h4>
               <p dangerouslySetInnerHTML={{ __html: t.security.card2Desc }} />
-              <div className="sec-detail"><i className="fa-solid fa-barcode"></i> {t.security.card2Badge}</div>
+              <div className="sec-detail">🏷️ {t.security.card2Badge}</div>
             </div>
             <div className="glass-card sec-card green-glow">
               <div className="glass-card-shine"></div>
-              <div className="sec-icon-wrap"><i className="fa-solid fa-database"></i></div>
+              <div className="sec-icon-wrap">🗄️</div>
               <h4>{t.security.card3Title}</h4>
               <p dangerouslySetInnerHTML={{ __html: t.security.card3Desc }} />
-              <div className="sec-detail"><i className="fa-solid fa-clock-rotate-left"></i> {t.security.card3Badge}</div>
+              <div className="sec-detail">↩️ {t.security.card3Badge}</div>
             </div>
           </div>
           <div className="glow-orb orb-1"></div>
@@ -406,7 +413,7 @@ export default function Home() {
         </div>
         <div className="container vision-container">
           <span className="section-tag tag-green" style={{ marginBottom: '1rem' }}>
-            <i className="fa-solid fa-rocket"></i> {t.vision.tag}
+            🚀 {t.vision.tag}
           </span>
           <h2 className="section-title anim-reveal vision-title">
             {t.vision.title}<br />{t.vision.title2}
@@ -416,7 +423,7 @@ export default function Home() {
           </p>
           <Link href="/iletisim" className="cta-button" id="ctaButton" style={{ marginTop: '2rem' }}>
             <span className="cta-btn-text">{t.vision.cta}</span>
-            <i className="fa-solid fa-arrow-right cta-btn-icon"></i>
+            <span className="cta-btn-icon">→</span>
             <span className="cta-blob cta-blob-1"></span>
             <span className="cta-blob cta-blob-2"></span>
           </Link>
@@ -437,9 +444,9 @@ export default function Home() {
             </div>
             <div className="footer-col col-lg-2">
               <h5>{t.footer.ecosystem}</h5>
-              <a href="#hardware"><i className="fa-solid fa-microchip"></i> sensSeries</a>
-              <a href="#rag"><i className="fa-solid fa-brain"></i> RAG</a>
-              <a href="#operation"><i className="fa-solid fa-robot"></i> {t.operation.tag}</a>
+              <a href="#hardware">⚙️ sensSeries</a>
+              <a href="#rag">🧠 RAG</a>
+              <a href="#operation">🤖 {t.operation.tag}</a>
             </div>
             <div className="footer-col col-lg-2">
               <h5>{t.footer.company}</h5>

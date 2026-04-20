@@ -180,7 +180,7 @@ export default function IletisimPage() {
 
     if (submitBtn) {
       submitBtn.disabled = true;
-      submitBtn.innerHTML = `<span class="btn-blob"></span><span>${tc.submitting}</span><i class="fa-solid fa-circle-notch fa-spin"></i>`;
+      submitBtn.innerHTML = `<span class="btn-blob"></span><span>${tc.submitting}</span><span class="btn-spinner"></span>`;
     }
     successMsg?.classList.remove('visible');
     errorMsg?.classList.remove('visible');
@@ -206,7 +206,7 @@ export default function IletisimPage() {
     } finally {
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = `<span class="btn-blob"></span><span>${tc.submitBtn}</span><i class="fa-solid fa-paper-plane"></i>`;
+        submitBtn.innerHTML = `<span class="btn-blob"></span><span>${tc.submitBtn}</span>✉️`;
       }
     }
   };
@@ -289,13 +289,13 @@ export default function IletisimPage() {
             {/* Left Info Panel */}
             <div className="contact-info" id="contactInfo">
               <span className="contact-info-tag">
-                <i className="fa-solid fa-paper-plane"></i> {tc.infoTag}
+                ✉️ {tc.infoTag}
               </span>
               <h1 className="contact-info-title" dangerouslySetInnerHTML={{ __html: tc.infoTitleHtml }} />
               <p className="contact-info-desc">{tc.infoDesc}</p>
               <div className="contact-channels">
                 <div className="contact-channel">
-                  <div className="contact-channel-icon"><i className="fa-solid fa-envelope"></i></div>
+                  <div className="contact-channel-icon">📧</div>
                   <div className="contact-channel-info">
                     <span className="contact-channel-label">{tc.emailLabel}</span>
                     <span className="contact-channel-value">fatih@nat-project.com</span>
@@ -305,14 +305,14 @@ export default function IletisimPage() {
                   </div>
                 </div>
                 <a className="contact-channel" href="https://github.com/nat-project" target="_blank" rel="noopener noreferrer" style={{ cursor: 'pointer', textDecoration: 'none' }}>
-                  <div className="contact-channel-icon"><i className="fa-brands fa-github"></i></div>
+                  <div className="contact-channel-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg></div>
                   <div className="contact-channel-info">
                     <span className="contact-channel-label">GitHub</span>
                     <span className="contact-channel-value">NaT-Project</span>
                   </div>
                 </a>
                 <div className="contact-channel">
-                  <div className="contact-channel-icon"><i className="fa-solid fa-location-dot"></i></div>
+                  <div className="contact-channel-icon">📍</div>
                   <div className="contact-channel-info">
                     <span className="contact-channel-label">{tc.locationLabel}</span>
                     <span className="contact-channel-value">{tc.location}</span>
@@ -324,7 +324,7 @@ export default function IletisimPage() {
             {/* Right Form Card */}
             <div className="contact-form-card" id="formCard">
               <div className="form-title">
-                <i className="fa-solid fa-pen-to-square"></i> {tc.formTitle}
+                ✏️ {tc.formTitle}
               </div>
               <form id="contactForm" noValidate onSubmit={handleSubmit}>
                 <div className="form-row">
@@ -344,7 +344,7 @@ export default function IletisimPage() {
                 <label className="org-toggle-wrapper" htmlFor="orgCheck" id="orgToggle" ref={orgToggleRef}>
                   <span className="org-checkbox">
                     <input type="checkbox" id="orgCheck" name="orgCheck" onChange={handleOrgToggle} />
-                    <span className="org-checkbox-box"><i className="fa-solid fa-check"></i></span>
+                    <span className="org-checkbox-box">✓</span>
                   </span>
                   <span className="org-toggle-text">
                     <strong>{tc.orgToggleTitle}</strong>
@@ -392,19 +392,19 @@ export default function IletisimPage() {
                   <button type="submit" className="form-submit-btn" id="submitBtn">
                     <span className="btn-blob"></span>
                     <span>{tc.submitBtn}</span>
-                    <i className="fa-solid fa-paper-plane"></i>
+                    ✉️
                   </button>
                   <span className="form-privacy-note">
-                    <i className="fa-solid fa-lock"></i> {tc.privacyNote}
+                    🔒 {tc.privacyNote}
                   </span>
                 </div>
 
                 <div className="form-status success" id="formSuccess">
-                  <i className="fa-solid fa-circle-check"></i>
+                  ✅
                   {tc.successMsg}
                 </div>
                 <div className="form-status error" id="formError">
-                  <i className="fa-solid fa-triangle-exclamation"></i>
+                  ⚠️
                   {tc.errorMsg}
                 </div>
               </form>
@@ -427,9 +427,9 @@ export default function IletisimPage() {
             </div>
             <div className="footer-col col-lg-2">
               <h5>{t.footer.ecosystem}</h5>
-              <Link href="/#hardware"><i className="fa-solid fa-microchip"></i> sensSeries</Link>
-              <Link href="/#rag"><i className="fa-solid fa-brain"></i> RAG</Link>
-              <Link href="/#operation"><i className="fa-solid fa-robot"></i> {t.operation.tag}</Link>
+              <Link href="/#hardware">⚙️ sensSeries</Link>
+              <Link href="/#rag">🧠 RAG</Link>
+              <Link href="/#operation">🤖 {t.operation.tag}</Link>
             </div>
             <div className="footer-col col-lg-2">
               <h5>{t.footer.company}</h5>
