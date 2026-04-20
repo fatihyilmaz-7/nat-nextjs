@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Large PDF assets — host via Vercel Blob or CDN instead
+/public/*.pdf
