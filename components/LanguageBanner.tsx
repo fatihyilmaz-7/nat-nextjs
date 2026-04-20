@@ -13,13 +13,10 @@ export default function LanguageBanner({ currentLang, onChangeLang }: LanguageBa
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [detectedLang, setDetectedLang] = useState<string | null>(null);
   const [showSuggestion, setShowSuggestion] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
+  const [bannerVisible, setBannerVisible] = useState(true);
 
-  // Auto-detect language from geo/browser
+  // Auto-detect language from geo/browser on EVERY page load
   useEffect(() => {
-    const saved = localStorage.getItem('nat-lang');
-    if (saved) return; // User already chose — don't suggest
-
     fetch('/api/geo')
       .then((r) => r.json())
       .then((data: { country: string | null }) => {
@@ -41,11 +38,15 @@ export default function LanguageBanner({ currentLang, onChangeLang }: LanguageBa
       });
   }, [currentLang]);
 
-  // Add body class for layout offset
+  // Add/remove body class for layout offset based on banner visibility
   useEffect(() => {
-    document.body.classList.add('has-lang-banner');
+    if (bannerVisible) {
+      document.body.classList.add('has-lang-banner');
+    } else {
+      document.body.classList.remove('has-lang-banner');
+    }
     return () => { document.body.classList.remove('has-lang-banner'); };
-  }, []);
+  }, [bannerVisible]);
 
   // Lock body scroll when modal open
   useEffect(() => {
@@ -78,7 +79,6 @@ export default function LanguageBanner({ currentLang, onChangeLang }: LanguageBa
       localStorage.setItem('nat-lang', code);
       setIsModalOpen(false);
       setShowSuggestion(false);
-      setDismissed(false);
     },
     [onChangeLang],
   );
@@ -91,8 +91,14 @@ export default function LanguageBanner({ currentLang, onChangeLang }: LanguageBa
 
   const handleDismissSuggestion = useCallback(() => {
     setShowSuggestion(false);
-    setDismissed(true);
   }, []);
+
+  const handleCloseBanner = useCallback(() => {
+    setBannerVisible(false);
+  }, []);
+
+  // Don't render the banner if it's been closed
+  if (!bannerVisible) return null;
 
   return (
     <>
@@ -100,7 +106,7 @@ export default function LanguageBanner({ currentLang, onChangeLang }: LanguageBa
       <div className="lang-banner" id="langBanner">
         <div className="lang-banner-inner">
           {/* Suggestion strip (auto-detected different language) */}
-          {showSuggestion && !dismissed && detectedLangInfo && (
+          {showSuggestion && detectedLangInfo && (
             <div className="lang-suggestion">
               <span className="lang-suggestion-text">
                 {detectedLangInfo.flag} {msg.suggestSwitch} {detectedLangInfo.name}
@@ -114,7 +120,7 @@ export default function LanguageBanner({ currentLang, onChangeLang }: LanguageBa
               <button
                 className="lang-suggestion-dismiss"
                 onClick={(e) => { e.stopPropagation(); handleDismissSuggestion(); }}
-                aria-label="Dismiss"
+                aria-label="Dismiss suggestion"
               >
                 <i className="fa-solid fa-xmark"></i>
               </button>
@@ -122,7 +128,7 @@ export default function LanguageBanner({ currentLang, onChangeLang }: LanguageBa
           )}
 
           {/* Current language display */}
-          {(!showSuggestion || dismissed) && (
+          {!showSuggestion && (
             <div className="lang-banner-content" onClick={() => setIsModalOpen(true)}>
               <i className="fa-solid fa-globe lang-banner-globe"></i>
               <span className="lang-banner-flag">{currentLangInfo?.flag}</span>
@@ -135,6 +141,15 @@ export default function LanguageBanner({ currentLang, onChangeLang }: LanguageBa
               </button>
             </div>
           )}
+
+          {/* ✕ Close banner button — always visible on right */}
+          <button
+            className="lang-banner-close"
+            onClick={(e) => { e.stopPropagation(); handleCloseBanner(); }}
+            aria-label="Close language banner"
+          >
+            <i className="fa-solid fa-xmark"></i>
+          </button>
         </div>
       </div>
 
