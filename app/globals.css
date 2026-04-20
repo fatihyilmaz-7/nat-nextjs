@@ -1291,46 +1291,236 @@ body.cursor-hover .cursor-ring {
     border-radius: 20px;
 }
 
-.box-number-wrap {
-    font-family: var(--font-heading);
-    font-size: 4rem;
-    font-weight: 900;
-    line-height: 1;
-    margin-bottom: 0.5rem;
-    opacity: 0.8;
+/* ── Infographic Timeline ── */
+.infographic-timeline {
+    position: relative;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 0 3rem;
 }
 
-.lab-text-box h4 {
+/* Central vertical spine */
+.timeline-spine {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    transform: translateX(-50%);
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(0, 255, 136, 0.15) 8%,
+        rgba(0, 255, 136, 0.35) 50%,
+        rgba(0, 255, 136, 0.15) 92%,
+        transparent 100%
+    );
+}
+.timeline-spine::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    transform: translateX(-50%);
+    background: linear-gradient(to bottom, transparent, var(--accent), transparent);
+    opacity: 0.5;
+    animation: spineShimmer 3s ease-in-out infinite alternate;
+}
+@keyframes spineShimmer {
+    0% { opacity: 0.3; }
+    100% { opacity: 0.7; }
+}
+
+/* Individual step row */
+.infographic-step {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 3rem;
+    opacity: 0;
+    transform: translateY(30px);
+}
+.infographic-step:last-child { margin-bottom: 0; }
+
+/* Odd steps: card on left, number on right */
+.infographic-step:nth-child(odd) {
+    flex-direction: row-reverse;
+    padding-left: calc(50% + 40px);
+}
+.infographic-step:nth-child(odd) .step-card {
+    margin-right: 0;
+    margin-left: 0;
+}
+.infographic-step:nth-child(odd) .step-number {
+    position: absolute;
+    left: calc(50% - 90px);
+}
+
+/* Even steps: card on right, number on left */
+.infographic-step:nth-child(even) {
+    padding-right: calc(50% + 40px);
+}
+.infographic-step:nth-child(even) .step-number {
+    position: absolute;
+    right: calc(50% - 90px);
+}
+
+/* Connector dot on the spine */
+.step-connector {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--step-color);
+    border: 3px solid var(--dark2);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--step-color) 50%, transparent),
+                0 0 40px color-mix(in srgb, var(--step-color) 25%, transparent);
+    z-index: 5;
+}
+.step-pulse {
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 2px solid var(--step-color);
+    opacity: 0;
+    animation: connectorPulse 2.5s ease-out infinite;
+}
+@keyframes connectorPulse {
+    0% { transform: scale(0.8); opacity: 0.6; }
+    100% { transform: scale(2); opacity: 0; }
+}
+
+/* Step number badge */
+.step-number {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-family: var(--font-heading);
-    font-size: 1.15rem;
-    margin-bottom: 1rem;
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: var(--step-color);
+    background: color-mix(in srgb, var(--step-color) 10%, var(--dark2));
+    border: 1px solid color-mix(in srgb, var(--step-color) 30%, transparent);
+    z-index: 2;
+    text-shadow: 0 0 15px color-mix(in srgb, var(--step-color) 60%, transparent);
+    box-shadow: 0 4px 20px color-mix(in srgb, var(--step-color) 15%, transparent);
+}
+
+/* Step card */
+.step-card {
+    position: relative;
+    flex: 1;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+    transition: transform 0.4s var(--ease-out), box-shadow 0.4s ease, border-color 0.4s ease;
+}
+.step-card:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, var(--step-color) 40%, transparent);
+    box-shadow: 0 8px 40px color-mix(in srgb, var(--step-color) 15%, transparent),
+                0 0 60px color-mix(in srgb, var(--step-color) 8%, transparent);
+}
+
+/* Color accent bar at top */
+.step-card-accent {
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--step-color), transparent);
+    opacity: 0.7;
+}
+
+/* Card inner layout */
+.step-card-inner {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+    padding: 1.5rem 1.75rem;
+}
+
+/* Icon circle */
+.step-icon-wrap {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--step-color) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--step-color) 25%, transparent);
+    color: var(--step-color);
+    font-size: 1.2rem;
+}
+
+/* Content */
+.step-content h4 {
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--cream);
+    margin-bottom: 0.5rem;
     line-height: 1.4;
 }
-
-.lab-text-box p {
+.step-content p {
     font-size: 0.9rem;
     color: var(--cream2);
-    line-height: 1.6;
+    line-height: 1.65;
+    margin: 0;
 }
 
-/* Asymmetric placements */
-.box-tl { top: 12%; left: 2%; transform: translate(-20px, -20px); }
-.box-rm { top: 28%; right: 1%; transform: translate(30px, -10px); }
-.box-bl { bottom: 10%; left: 3%; transform: translate(-30px, 30px); }
-.box-tr { top: 15%; right: 4%; transform: translate(20px, 10px); }
+/* Stagger delay */
+.infographic-step.step-1 { transition-delay: 0s; }
+.infographic-step.step-2 { transition-delay: 0.12s; }
+.infographic-step.step-3 { transition-delay: 0.24s; }
+.infographic-step.step-4 { transition-delay: 0.36s; }
 
-/* Colorful comparisons with glowing borders */
-#lab-box-1 { border-color: rgba(255, 152, 0, 0.8); box-shadow: 0 0 40px rgba(255, 152, 0, 0.15), inset 0 0 15px rgba(255, 152, 0, 0.1); }
-#lab-box-1 h4, #lab-box-1 .box-number-wrap { color: #ffad33; text-shadow: 0 0 15px rgba(255, 152, 0, 0.4); }
-
-#lab-box-2 { border-color: rgba(244, 67, 54, 0.8); box-shadow: 0 0 40px rgba(244, 67, 54, 0.15), inset 0 0 15px rgba(244, 67, 54, 0.1); }
-#lab-box-2 h4, #lab-box-2 .box-number-wrap { color: #f6685e; text-shadow: 0 0 15px rgba(244, 67, 54, 0.4); }
-
-#lab-box-3 { border-color: rgba(156, 39, 176, 0.8); box-shadow: 0 0 40px rgba(156, 39, 176, 0.15), inset 0 0 15px rgba(156, 39, 176, 0.1); }
-#lab-box-3 h4, #lab-box-3 .box-number-wrap { color: #ba68c8; text-shadow: 0 0 15px rgba(156, 39, 176, 0.4); }
-
-#lab-box-4 { border-color: rgba(0, 188, 212, 0.8); box-shadow: 0 0 40px rgba(0, 188, 212, 0.15), inset 0 0 15px rgba(0, 188, 212, 0.1); }
-#lab-box-4 h4, #lab-box-4 .box-number-wrap { color: #4dd0e1; text-shadow: 0 0 15px rgba(0, 188, 212, 0.4); }
+/* ── Mobile: stack vertically ── */
+@media (max-width: 768px) {
+    .timeline-spine {
+        left: 24px;
+    }
+    .infographic-step,
+    .infographic-step:nth-child(odd),
+    .infographic-step:nth-child(even) {
+        flex-direction: row !important;
+        padding-left: 56px !important;
+        padding-right: 0 !important;
+    }
+    .step-connector {
+        left: 24px;
+    }
+    .infographic-step:nth-child(odd) .step-number,
+    .infographic-step:nth-child(even) .step-number {
+        position: static;
+        margin-right: 12px;
+        width: 44px;
+        height: 44px;
+        font-size: 1.1rem;
+        border-radius: 12px;
+    }
+    .step-card-inner {
+        padding: 1.25rem;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .step-icon-wrap {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+}
 
 /* ---------- SECURITY ---------- */
 .security-section {

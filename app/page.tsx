@@ -334,23 +334,45 @@ export default function Home() {
       {/* Lab — simplified grid (no pinned scroll) */}
       <section id="lab-test" className="section" style={{ background: 'var(--dark2)', position: 'relative', overflow: 'hidden' }}>
         <div className="lab-video-bg" style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
-          <img src="/lab.jpg" alt="Lab" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.18 }} />
+          <img src="/lab.jpg" alt="Lab" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.1 }} />
         </div>
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           <h2 className="section-title anim-reveal" style={{ textAlign: 'center' }}>{t.lab.title}</h2>
-          <p className="section-desc anim-reveal" style={{ textAlign: 'center' }}>{t.lab.subtitle}</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginTop: '3rem' }}>
+          <p className="section-desc anim-reveal" style={{ textAlign: 'center', marginBottom: '4rem' }}>{t.lab.subtitle}</p>
+
+          <div className="infographic-timeline">
+            <div className="timeline-spine"></div>
+
             {[
-              { n: 1, title: t.lab.box1Title, desc: t.lab.box1Desc },
-              { n: 2, title: t.lab.box2Title, desc: t.lab.box2Desc },
-              { n: 3, title: t.lab.box3Title, desc: t.lab.box3Desc },
-              { n: 4, title: t.lab.box4Title, desc: t.lab.box4Desc },
-            ].map(({ n, title, desc }) => (
-              <div key={n} className="glass-card lab-card" style={{ padding: '2rem' }}>
-                <div className="glass-card-shine"></div>
-                <div className="box-number-wrap">{n}</div>
-                <h4 style={{ marginTop: '1rem', marginBottom: '0.75rem' }}>{title}</h4>
-                <p>{desc}</p>
+              { n: 1, title: t.lab.box1Title, desc: t.lab.box1Desc, icon: 'fa-clock', color: '#ffad33' },
+              { n: 2, title: t.lab.box2Title, desc: t.lab.box2Desc, icon: 'fa-flask', color: '#f6685e' },
+              { n: 3, title: t.lab.box3Title, desc: t.lab.box3Desc, icon: 'fa-leaf', color: '#ba68c8' },
+              { n: 4, title: t.lab.box4Title, desc: t.lab.box4Desc, icon: 'fa-chart-line', color: '#4dd0e1' },
+            ].map(({ n, title, desc, icon, color }) => (
+              <div key={n} className={`infographic-step step-${n} lab-card`}>
+                {/* Connector dot on the spine */}
+                <div className="step-connector" style={{ '--step-color': color } as React.CSSProperties}>
+                  <div className="step-pulse"></div>
+                </div>
+
+                {/* Step number badge */}
+                <div className="step-number" style={{ '--step-color': color } as React.CSSProperties}>
+                  <span>{String(n).padStart(2, '0')}</span>
+                </div>
+
+                {/* Content card */}
+                <div className="step-card" style={{ '--step-color': color } as React.CSSProperties}>
+                  <div className="step-card-accent"></div>
+                  <div className="step-card-inner">
+                    <div className="step-icon-wrap">
+                      <i className={`fa-solid ${icon}`}></i>
+                    </div>
+                    <div className="step-content">
+                      <h4>{title}</h4>
+                      <p>{desc}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
