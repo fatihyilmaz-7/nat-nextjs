@@ -2928,26 +2928,26 @@ body.cursor-hover .cursor-ring {
 
 .lang-banner-close {
     position: absolute;
-    right: 0.75rem;
+    right: 1rem;
     top: 50%;
     transform: translateY(-50%);
     background: none;
     border: none;
-    color: #e05555;
-    font-size: 1rem;
+    color: #ff3b3b;
+    font-size: 1.2rem;
     cursor: pointer;
-    padding: 0.3rem;
+    padding: 0.25rem;
     border-radius: 50%;
     transition: all 0.25s;
-    opacity: 0.8;
     display: flex;
     align-items: center;
     justify-content: center;
+    filter: drop-shadow(0 0 4px rgba(255, 59, 59, 0.4));
 }
 .lang-banner-close:hover {
-    opacity: 1;
-    color: #ff4444;
-    transform: translateY(-50%) scale(1.15);
+    color: #ff1a1a;
+    transform: translateY(-50%) scale(1.25);
+    filter: drop-shadow(0 0 8px rgba(255, 59, 59, 0.7));
 }
 
 .lang-banner-content {
